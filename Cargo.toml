@@ -1,7 +1,8 @@
 [package]
-name = "BendeRS"
+name = "benders"
 version = "0.1.0"
 authors = ["Calmynt <mctech26@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+memmap = "0.7.0"
