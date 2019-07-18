@@ -1,3 +1,5 @@
+mod sample;
+
 fn main() {
-    println!("Hello, world!");
+    let _x = sample::memmap_test();
 }
