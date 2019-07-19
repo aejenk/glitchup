@@ -6,4 +6,9 @@ mod tests {
     fn basic() {
         assert_eq!(2, 2);
     }
+
+    #[test]
+    fn trivial() {
+        assert!(true);
+    }
 }
