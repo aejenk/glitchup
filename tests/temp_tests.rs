@@ -8,7 +8,7 @@ fn memmap_test() -> std::io::Result<()>{
     use std::fs::OpenOptions;
     use std::io::{Write, Read};
 
-    // Create a file called "foo.txt"
+    // Create/Load a file called "foo.txt"
     let path : PathBuf = PathBuf::from("foo.txt");
     let mut file = OpenOptions::new()
         .read(true)
@@ -54,7 +54,7 @@ fn basic_mut_test() -> std::io::Result<()>{
     use benders::*;
     use MutOptionVal::*;
 
-    // Create a file called "foo.txt"
+    // Create/Load a file called "foo.txt"
     let path : PathBuf = PathBuf::from("foo.txt");
     let mut file = OpenOptions::new()
         .read(true)
@@ -68,13 +68,16 @@ fn basic_mut_test() -> std::io::Result<()>{
     // Mutably memory map it
     let mut mmap = unsafe { MmapMut::map_mut(&file)? };
 
+    // Initialise mutation and options
     let mut basic_mut = BasicMutation::default();
     let mut options = HashMap::new();
 
+    // Add options to map
     options.insert(String::from("chunk_size"), OInt(3));
     options.insert(String::from("min"), OInt(1));
     options.insert(String::from("max"), OInt(2));
 
+    // Mutate file
     basic_mut.mutate(&mut *mmap, options);
 
     // Reload and read content of file
