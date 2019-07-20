@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use rand::Rng;
 
+#[derive(Hash)]
+#[allow(dead_code)]
 pub enum MutOptionVal {
     OString(String),
     OInt(isize),
@@ -12,6 +14,7 @@ pub trait Mutation {
     fn mutate(&mut self, data : &mut [u8], options : HashMap<String, MutOptionVal>);
 }
 
+#[derive(Default)]
 pub struct BasicMutation {
     min : usize,
     max : usize,
@@ -62,7 +65,7 @@ impl Mutation for BasicMutation {
 
         let index: usize = rng.gen_range(self.min, self.max);
 
-        if let Some(slice) = data.get_mut(index..self.chunk_size) {
+        if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
             for chr in slice.iter_mut() {
                 *chr = b'0';
             }

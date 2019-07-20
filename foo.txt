@@ -1,1 +1,1 @@
-[xxx] Hello world!
+[000] Hello world!
