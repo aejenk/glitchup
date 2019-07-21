@@ -19,14 +19,10 @@ impl BasicMutation {
 
         let mutopts = &config.to_hashmap();
 
-        println!("MutConfig: {:#?}", mutopts);
-
         let options = match &mutopts["mutation"] {
             OMap(map) => map,
             _ => panic!("'mutation' should be an OMap(HashMap<String, MutOptionVal>)")
         };
-
-        println!("options: {:#?}", options);
 
         // matching values
         if let OInt(omin) = &options["min"] {
@@ -62,7 +58,7 @@ impl Mutation for BasicMutation {
         // random number generator
         let mut rng = rand::thread_rng();
 
-        // processing options
+        // processing configutation
         self.process_options(data, config);
 
         let index: usize = rng.gen_range(self.min, self.max);

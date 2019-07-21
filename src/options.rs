@@ -29,6 +29,7 @@ impl TomlProcessor {
             panic!("Error while loading file from {} : {}", filename, error);
         }
 
+        // Parse the toml file into a serializable struct
         let config : T = toml::from_str(contents.as_str()).unwrap();
 
         Ok(config)
