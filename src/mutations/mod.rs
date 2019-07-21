@@ -2,7 +2,7 @@ use rand::Rng;
 use super::options::MutConfig;
 
 pub trait Mutation {
-    fn mutate(&mut self, data : &mut [u8], config : Box<MutConfig>);
+    fn mutate(&mut self, data : &mut [u8], config : Box<&MutConfig>);
 }
 
 #[derive(Default)]
@@ -13,7 +13,7 @@ pub struct BasicMutation {
 }
 
 impl BasicMutation {
-    fn process_options(&mut self, data: &[u8], config: Box<MutConfig>) {
+    fn process_options(&mut self, data: &[u8], config: Box<&MutConfig>) {
         // to avoid verbosity
         use super::options::MutOptionVal::*;
 
@@ -54,7 +54,7 @@ impl BasicMutation {
 }
 
 impl Mutation for BasicMutation {
-    fn mutate(&mut self, data: &mut [u8], config: Box<MutConfig>) {
+    fn mutate(&mut self, data: &mut [u8], config: Box<&MutConfig>) {
         // random number generator
         let mut rng = rand::thread_rng();
 
