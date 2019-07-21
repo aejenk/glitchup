@@ -4,6 +4,14 @@ version = "0.1.0"
 authors = ["Calmynt <mctech26@gmail.com>"]
 edition = "2018"
 
+[lib]
+name = "benders"
+path = "src/lib.rs"
+
+[[bin]]
+name = "corebend"
+path = "src/main.rs"
+
 [dependencies]
 memmap = "0.7.0"
 rand = "0.7.0"

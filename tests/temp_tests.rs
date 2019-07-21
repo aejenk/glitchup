@@ -46,13 +46,16 @@ fn memmap_test() -> std::io::Result<()>{
 #[test]
 // A temporary test to show functionality of basic mutation.
 fn basic_mut_test() -> std::io::Result<()>{
+    // libs needed for setup
     use memmap::MmapMut;
     use std::path::PathBuf;
     use std::fs::OpenOptions;
     use std::io::{Write,Read};
-    use std::collections::HashMap;
-    use benders::*;
-    use MutOptionVal::*;
+
+    // libs needed for benders
+    use std::collections::HashMap;  
+    use benders::mutations::*;      // import mutations
+    use MutOptionVal::*;            // import enum from core
 
     // Create/Load a file called "foo.txt"
     let path : PathBuf = PathBuf::from("foo.txt");
