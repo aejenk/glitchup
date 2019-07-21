@@ -10,7 +10,7 @@ fn memmap_test() -> std::io::Result<()>{
     use std::io::{Write, Read};
 
     // Create a file called "foo.txt"
-    let path : PathBuf = PathBuf::from("foo.txt");
+    let path : PathBuf = PathBuf::from("tests/foo.txt");
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
