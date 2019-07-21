@@ -58,17 +58,14 @@ impl BasicBender {
     pub fn init_file(&mut self, input: String, output: Option<String>) -> std::io::Result<()> {
 
         // Set optional output
-        let out = if let Some(name) = output {
-            name
-        }
-        else {
-            input.clone()
-        };
+        let out = output.unwrap_or(input.clone());
 
         // Find index for extension
         let extindex = out.clone().rfind('.').unwrap_or(out.len());
 
         // Backup filenames
+        // Hint: For extensions, you can use this: 
+        //      https://stackoverflow.com/questions/45291832/extracting-a-file-extension-from-a-given-path-in-rust-idiomatically
         self.filename = input.clone();
         self.extension = String::from(out.clone().get(extindex+1..out.len()).unwrap());
         self.output = String::from(out.clone().get(0..extindex).unwrap());
