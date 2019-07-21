@@ -50,8 +50,8 @@ fn memmap_test() -> std::io::Result<()>{
 fn basic_mut_test() -> std::io::Result<()>{
     // libs needed for benders
     use std::collections::HashMap;  
-    use benders::mutations::*;      // import mutations
-    use MutOptionVal::*;            // import enum from core
+    use benders::mutations::*;                // import mutations
+    use benders::options::MutOptionVal::*;    // import options
     use benders::loaders::Loader;
 
     // file name for testing
