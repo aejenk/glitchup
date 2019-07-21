@@ -13,12 +13,12 @@ impl Loader {
 
     pub fn map_file_mut(name: String) -> std::io::Result<memmap::MmapMut> {
         let path : PathBuf = PathBuf::from(name);
-        let mut file = OpenOptions::new()
+        let file = OpenOptions::new()
             .read(true)
             .write(true)
             .open(&path)?;
 
-        let mut mmap = unsafe { MmapMut::map_mut(&file)? };
+        let mmap = unsafe { MmapMut::map_mut(&file)? };
 
         Ok(mmap)
     }
@@ -33,7 +33,6 @@ impl Loader {
             .read(true)
             .open(&name)?;
 
-        let mut chars = String::new();
         file.read_to_string(output)?;
 
         Ok(())
