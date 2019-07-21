@@ -1,17 +1,8 @@
-use std::collections::HashMap;
 use rand::Rng;
-
-#[derive(Hash)]
-#[allow(dead_code)]
-pub enum MutOptionVal {
-    OString(String),
-    OInt(isize),
-    OBool(bool),
-    OArray(Vec<MutOptionVal>)
-}
+use super::options::MutConfig;
 
 pub trait Mutation {
-    fn mutate(&mut self, data : &mut [u8], options : HashMap<String, MutOptionVal>);
+    fn mutate(&mut self, data : &mut [u8], config : Box<MutConfig>);
 }
 
 #[derive(Default)]
@@ -22,9 +13,16 @@ pub struct BasicMutation {
 }
 
 impl BasicMutation {
-    fn process_options(&mut self, data: &[u8], options: HashMap<String, MutOptionVal>) {
+    fn process_options(&mut self, data: &[u8], config: Box<MutConfig>) {
         // to avoid verbosity
-        use MutOptionVal::*;
+        use super::options::MutOptionVal::*;
+
+        let mutopts = &config.to_hashmap();
+
+        let options = match &mutopts["mutation"] {
+            OMap(map) => map,
+            _ => panic!("'mutation' should be an OMap(HashMap<String, MutOptionVal>)")
+        };
 
         // matching values
         if let OInt(omin) = &options["min"] {
@@ -34,7 +32,7 @@ impl BasicMutation {
             self.min = 0;
         }
 
-        if let OInt(csize) = &options["chunk_size"] {
+        if let OInt(csize) = &options["chunksize"] {
             self.chunk_size = *csize as usize;
         }
         else {
@@ -56,12 +54,12 @@ impl BasicMutation {
 }
 
 impl Mutation for BasicMutation {
-    fn mutate(&mut self, data: &mut [u8], options: HashMap<String, MutOptionVal>) {
+    fn mutate(&mut self, data: &mut [u8], config: Box<MutConfig>) {
         // random number generator
         let mut rng = rand::thread_rng();
 
-        // processing options
-        self.process_options(data, options);
+        // processing configutation
+        self.process_options(data, config);
 
         let index: usize = rng.gen_range(self.min, self.max);
 
