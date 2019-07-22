@@ -34,65 +34,62 @@ impl MutConfig for MainConfig {
     }
 }
 
-pub struct BasicBender {
-    filename: String,
-    extension: String,
-    output: String,
+pub struct BasicBender<'a> {
+    filename: &'a str,
+    extension: &'a str,
+    output: &'a str,
     curr_iter: u32,
-    data: Option<MmapMut>,
+    data: MmapMut,
     config: MainConfig
 }
 
-impl BasicBender {
-    pub fn new(config_filename: String) -> BasicBender {
-        BasicBender {
+impl<'a> BasicBender<'a> {
+    pub fn new(config_filename: &str, input: &'a str, output: Option<&'a str>) -> BasicBender<'a> {
+        let mut return_bender = BasicBender {
             curr_iter : 1,
             config : TomlProcessor::parse_toml_as_options(config_filename).unwrap(),
-            filename : String::new(),
-            extension : String::new(),
-            output : String::new(),
-            data : None
-        }
+            filename : "",
+            extension: "",
+            output: "",
+            data : MmapMut::map_anon(1).unwrap()
+        };
+
+        return_bender.init_file(input, output);
+
+        return_bender
     }
 
-    pub fn init_file(&mut self, input: String, output: Option<String>) -> std::io::Result<()> {
+    pub fn init_file(&mut self, input: &'a str, output: Option<&'a str>) -> &mut BasicBender<'a> {
 
         // Set optional output
-        let out = output.unwrap_or(input.clone());
+        let out = output.unwrap_or(input);
 
         // Find index for extension
-        let extindex = out.clone().rfind('.').unwrap_or(out.len());
+        let extindex = out.rfind('.').unwrap_or(out.len());
 
         // Backup filenames
         // Hint: For extensions, you can use this: 
         //      https://stackoverflow.com/questions/45291832/extracting-a-file-extension-from-a-given-path-in-rust-idiomatically
-        self.filename = input.clone();
-        self.extension = String::from(out.clone().get(extindex+1..out.len()).unwrap());
-        self.output = String::from(out.clone().get(0..extindex).unwrap());
+        self.filename = input;
+        self.extension = out.get(extindex+1..out.len()).unwrap();
+        self.output = out.get(0..extindex).unwrap();
 
         // Load data
-        self.data = Some(Loader::init_file_mut(
-            input.clone(),
-            format!("{}_iter={}.{}", self.output.clone(), self.curr_iter, self.extension.clone())
-        )?);
+        self.data = Loader::init_file_mut(
+            input,
+            format!("{}_iter={}.{}", self.output.clone(), self.curr_iter, self.extension.clone()).as_str()
+        ).unwrap();
 
-        Ok(())
+        self
     }
 
-    pub fn mutate<T: Mutation>(&mut self, mutation: &mut Box<T>){
-        // verifies that the bender is in a valid state
-        self.verify();
-
+    pub fn mutate<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut BasicBender<'a> {
         // performs mutation
         mutation.mutate(
-            &mut *self.data.as_mut().unwrap(),
+            self.data.as_mut(),
             Box::new(&self.config)
         );
-    }
 
-    fn verify(&self) {
-        if self.data.is_none() {
-            panic!("No file was loaded. Have you called 'init_file'?");
-        }
+        self
     }
 }
