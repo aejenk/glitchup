@@ -14,8 +14,8 @@ struct MainConfig {
 
 #[derive(Debug, Deserialize)]
 struct MutationConfig {
-    min : isize,
-    max : isize,
+    min : Option<isize>,
+    max : Option<isize>,
     chunksize : isize
 }
 
@@ -25,8 +25,11 @@ impl MutConfig for MainConfig {
         let mut map = HashMap::new();
         let mut muts = HashMap::new();
 
-        muts.insert(String::from("min"), OInt(self.mutation.min));
-        muts.insert(String::from("max"), OInt(self.mutation.max));
+        let min = self.mutation.min.map_or(ONone(), |n| OInt(n));
+        let max = self.mutation.max.map_or(ONone(), |n| OInt(n));
+
+        muts.insert(String::from("min"), min);
+        muts.insert(String::from("max"), max);
         muts.insert(String::from("chunksize"), OInt(self.mutation.chunksize));
 
         map.insert(String::from("mutation"), OMap(muts));

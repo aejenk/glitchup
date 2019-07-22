@@ -13,7 +13,8 @@ pub enum MutOptionVal {
     OInt(isize),
     OBool(bool),
     OArray(Vec<MutOptionVal>),
-    OMap(HashMap<String, MutOptionVal>)
+    OMap(HashMap<String, MutOptionVal>),
+    ONone()
 }
 
 pub struct TomlProcessor;
