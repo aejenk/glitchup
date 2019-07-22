@@ -3,7 +3,7 @@ mod options;
 mod loaders;
 mod benders;
 
-use mutations::*;
+use mutations::basic_mutation::BasicMutation;
 use crate::benders::BasicBender;
 
 
