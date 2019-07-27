@@ -1,5 +1,6 @@
 use glitchconsole::mutation::{Mutation};
 use glitchconsole::options::{MutConfig};
+use std::fmt::{Display, Formatter, Error};
 
 use rand::Rng;
 
@@ -48,6 +49,12 @@ impl BasicMutation {
         else {
             self.max = data.len() - self.chunk_size;
         }
+    }
+}
+
+impl Display for BasicMutation {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "min={}_max={}_csize={}", self.min, self.max, self.chunk_size)
     }
 }
 

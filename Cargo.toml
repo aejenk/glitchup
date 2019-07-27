@@ -10,7 +10,7 @@ path = "src/lib.rs"
 
 [[bin]]
 name = "glitchup"
-path = "src/main.rs"
+path = "src/bin/main.rs"
 
 [dependencies]
 memmap = "0.7.0"
