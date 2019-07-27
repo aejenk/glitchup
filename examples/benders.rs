@@ -2,7 +2,7 @@ use glitchconsole::options::{TomlProcessor, MutConfig, MutOptionVal};
 use glitchconsole::loaders::Loader;
 use glitchconsole::mutation::Mutation;
 
-use basic_mutation::BasicMutation;
+use crate::basic_mutation::BasicMutation;
 use glitchup_derive::MutConfig;
 
 use serde::Deserialize;
@@ -13,6 +13,7 @@ use std::collections::HashMap;
 #[derive(Debug, Deserialize, MutConfig)]
 struct MainConfig {
     mutation : MutationConfig,
+    pub datalen : isize
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
@@ -44,6 +45,7 @@ impl<'a> BasicBender<'a> {
         };
 
         return_bender.init_file(input, output);
+        return_bender.config.datalen = return_bender.data.len() as isize;
 
         return_bender
     }
@@ -72,12 +74,14 @@ impl<'a> BasicBender<'a> {
         self
     }
 
+    pub fn configure_mutation<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
+        mutation.configure(Box::new(&self.config));
+        self
+    }
+
     pub fn mutate<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
         // performs mutation
-        mutation.mutate(
-            self.data.as_mut(),
-            Box::new(&self.config)
-        );
+        mutation.mutate(self.data.as_mut());
 
         self
     }

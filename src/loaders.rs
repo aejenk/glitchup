@@ -3,16 +3,17 @@ use std::io::Read;
 use memmap::MmapMut;
 use std::path::PathBuf;
 
+/// A Loader struct to facilitate file manipulation (loading, memorymapping...)
 pub struct Loader;
 
 impl Loader {
-    // Copies the file "from" into "to"
+    /// Copies a file from `from` to `to`. 
     pub fn copy_file(from: &str, to: &str) -> std::io::Result<()>{
         copy(from, to)?;
         Ok(())
     }
 
-    // Constructs a mutable memory map of a file at "name"
+    /// Constructs a mutable memory map of file at `name`.
     pub fn map_file_mut(name: &str) -> std::io::Result<memmap::MmapMut> {
         let path : PathBuf = PathBuf::from(name);
         let file = OpenOptions::new()
@@ -25,13 +26,13 @@ impl Loader {
         Ok(mmap)
     }
 
-    // Copies the file "from" into "to", then mutably memory maps the "to" file.
+    /// A combination of `copy_file` and `map_file_mut`.
     pub fn init_file_mut(from: &str, to:&str) -> std::io::Result<memmap::MmapMut> {
         Loader::copy_file(from, to.clone())?;
         Loader::map_file_mut(to)
     }
 
-    // Loads the contents of the file at "name" into "output"
+    /// Loads the contents of the file at `name` and returns it as a `String`.
     pub fn load_file_as_string(name: &str) -> std::io::Result<String> {
         let mut output = String::new();
         let mut file = OpenOptions::new()
