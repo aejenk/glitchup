@@ -12,11 +12,26 @@ pub struct BasicMutation {
 }
 
 impl BasicMutation {
-    fn process_options(&mut self, data: &[u8], config: Box<&MutConfig>) {
+}
+
+impl Display for BasicMutation {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "min={}_max={}_csize={}", self.min, self.max, self.chunk_size)
+    }
+}
+
+impl Mutation for BasicMutation {
+    fn configure(&mut self, config: Box<&MutConfig>) {
         // to avoid verbosity
         use glitchconsole::options::MutOptionVal::*;
 
         let mutopts = &config.to_hashmap();
+
+        let datalen = if let OInt(size) = &mutopts["datalen"] {
+            *size as usize
+        } else {
+            panic!("Somehow, the data loaded has no length. Please contact the dev.")
+        };
 
         let options = match &mutopts["mutation"] {
             OMap(map) => map,
@@ -39,32 +54,21 @@ impl BasicMutation {
         }
 
         if let OInt(omax) = &options["max"] {
-            if *omax as usize > data.len() - self.chunk_size {
-                self.max = data.len() - self.chunk_size;
+            if *omax as usize > datalen - self.chunk_size {
+                self.max = datalen - self.chunk_size;
             }
             else {
                 self.max = *omax as usize;
             }
         }
         else {
-            self.max = data.len() - self.chunk_size;
+            self.max = datalen - self.chunk_size;
         }
     }
-}
 
-impl Display for BasicMutation {
-    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "min={}_max={}_csize={}", self.min, self.max, self.chunk_size)
-    }
-}
-
-impl Mutation for BasicMutation {
-    fn mutate(&mut self, data: &mut [u8], config: Box<&MutConfig>) {
+    fn mutate(&mut self, data: &mut [u8]) {
         // random number generator
         let mut rng = rand::thread_rng();
-
-        // processing configutation
-        self.process_options(data, config);
 
         let index: usize = rng.gen_range(self.min, self.max);
 
