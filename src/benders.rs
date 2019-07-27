@@ -9,34 +9,40 @@ use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 struct MainConfig {
-    mutation : MutationConfig
+    mutation : MutationConfig,
 }
 
 #[derive(Debug, Deserialize)]
 struct MutationConfig {
     min : Option<isize>,
     max : Option<isize>,
-    chunksize : isize
+    chunksize : isize,
 }
 
 impl MutConfig for MainConfig {
     fn to_hashmap(&self) -> HashMap<String, MutOptionVal> {
         use MutOptionVal::*;
         let mut map = HashMap::new();
-        let mut muts = HashMap::new();
 
-        let min = self.mutation.min.map_or(ONone(), |n| OInt(n));
-        let max = self.mutation.max.map_or(ONone(), |n| OInt(n));
-
-        muts.insert(String::from("min"), min);
-        muts.insert(String::from("max"), max);
-        muts.insert(String::from("chunksize"), OInt(self.mutation.chunksize));
-
-        map.insert(String::from("mutation"), OMap(muts));
+        map.insert(String::from("mutation"), OMap(self.mutation.to_hashmap()));
         map
     }
 }
 
+impl MutConfig for MutationConfig {
+    fn to_hashmap(&self) -> HashMap<String, MutOptionVal> {
+        use MutOptionVal::*;
+        let mut map = HashMap::new();
+        
+        map.insert(String::from("min"), self.min.map_or(ONone(), |n| OInt(n)));
+        map.insert(String::from("max"), self.max.map_or(ONone(), |n| OInt(n)));
+        map.insert(String::from("chunksize"), OInt(self.chunksize));
+
+        map
+    }
+}
+
+#[derive(Debug)]
 pub struct BasicBender<'a> {
     filename: &'a str,
     extension: &'a str,
