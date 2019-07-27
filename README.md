@@ -1,6 +1,8 @@
 # glitchup
 
 [![Build status](https://travis-ci.org/Calmynt/glitchup.svg?branch=master)](https://travis-ci.org/Calmynt/glitchup)
+[![glitchup](https://img.shields.io/crates/v/glitchup.svg)](https://crates.io/crates/glitchup)
+[![glitchup](https://docs.rs/glitchup/badge.svg)](https://docs.rs/crate/glitchup)
 
 A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
 
