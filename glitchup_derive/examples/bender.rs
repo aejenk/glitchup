@@ -1,8 +1,6 @@
-use glitchconsole::options::{TomlProcessor, MutConfig, MutOptionVal};
-use glitchconsole::loaders::Loader;
-use glitchconsole::mutation::Mutation;
-
-use crate::basic_mutation;
+use glitchup::options::{TomlProcessor, MutConfig, MutOptionVal};
+use glitchup::mutations::*;
+use glitchup::loaders::Loader;
 use glitchup_derive::MutConfig;
 
 use serde::Deserialize;

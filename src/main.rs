@@ -1,9 +1,7 @@
-mod mutations;
-mod options;
-mod loaders;
 mod benders;
+mod basic_mutation;
 
-use mutations::basic_mutation::BasicMutation;
+use crate::basic_mutation::BasicMutation;
 use crate::benders::BasicBender;
 
 fn main() -> std::io::Result<()> {
