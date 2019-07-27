@@ -2,4 +2,38 @@
 
 [![Build status](https://travis-ci.org/Calmynt/glitchup.svg?branch=master)](https://travis-ci.org/Calmynt/glitchup)
 
-A databender library/executable made in Rust. Coming soon.
+A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
+
+## What's a databender?
+
+A *databender* is a program that **databends**. So what's databending?
+
+It consists of modifying parts of a file *(preferrably binary, but it's up to you)*, and seeing what pops up. This has the effect of corrupting, or causing glitch effects to appear - which is something that is not only fun, but can produce some very interesting results.
+
+## Why library and executable?
+
+I wanted to split them up because I felt other people should be able to make their own versions with ease. They could contribute to the program here, but if they'd like to make their own local version then I want to make that as easy as possible. This way, if I want my executable to be a CLI tool, and someone wants to make one with a GUI, then they would be able to do so.
+
+## What's in the library?
+
+So far there are three main parts - `loader`, `options`, and `mutation`.
+
+`mutation` is the simplest. It simply defines a `Mutation` trait.
+
+`options` provides tools to process options easily. For now, it contains a `TomlProcessor`, which serialises a `TOML` file into your own structs to store the configuration in. It also defines a `MutConfig` trait, used to define configurations that a `Mutation` can use. If you do not want to implement it by yourself, you can use [`#[derive(MutConfig)]`](glitchup_derive), offered by the `glitchup_derive` crate.
+
+`loader` facilitates copying files, memory mapping a file for mutation, and reading a file into a string.
+
+## Why memory mapping?
+
+The current expected mutation should work by copying a file, memory mapping the copy, and then mutating it. This avoids the dual cumbersome process of both `loading` and `saving`, but has the significantly more interesting benefit that there is no memory limitation. 
+
+If you want to load a `10GB` file, not only are waiting times cut in half, but those `10GB` are not all loaded into memory, only the parts that are being mutated.
+
+## What if I want to make my own Loader or Options?
+
+Of course, you do not need to use them, you can make your own. I just thought of predefining a structure/design with some tools to help developing. I left them in the library in the case that someone wants to just focus on databending. If you feel they are too limiting, *feel welcome to open an issue!* I'd be happy to look into implementing it. 
+
+## So where's the program?
+
+For now, I've been developing and refining the library. My reasoning behind this was that my executable would depend on my library, so the better I make the library, the more easily and the more powerful my executable can become. Of course this means that for now, there's no usable/interesting binary, only a proof of concept as can be seen in the [`examples`](examples) folder.
