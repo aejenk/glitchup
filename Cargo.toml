@@ -1,15 +1,15 @@
 [package]
-name = "oxidizers"
+name = "glitchup"
 version = "0.1.0"
 authors = ["Calmynt <mctech26@gmail.com>"]
 edition = "2018"
 
 [lib]
-name = "oxidant"
+name = "glitchconsole"
 path = "src/lib.rs"
 
 [[bin]]
-name = "oxidizer"
+name = "glitchup"
 path = "src/main.rs"
 
 [dependencies]
@@ -17,3 +17,4 @@ memmap = "0.7.0"
 rand = "0.7.0"
 toml = "0.5.1"
 serde = {version = "1.0.97", features = ["derive"]}
+# mut_config_derive = {path = "mut_config_derive"}
