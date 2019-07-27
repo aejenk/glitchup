@@ -1,42 +1,28 @@
-use super::options::{TomlProcessor, MutConfig, MutOptionVal};
-use super::mutations::*;
-use super::loaders::Loader;
+use glitchconsole::options::{TomlProcessor, MutConfig, MutOptionVal};
+use glitchconsole::loaders::Loader;
+use glitchconsole::mutation::Mutation;
+
+use crate::basic_mutation;
+use glitchup_derive::MutConfig;
 
 use serde::Deserialize;
 use memmap::MmapMut;
 
 use std::collections::HashMap;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, MutConfig)]
 struct MainConfig {
-    mutation : MutationConfig
+    mutation : MutationConfig,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, MutConfig)]
 struct MutationConfig {
     min : Option<isize>,
     max : Option<isize>,
-    chunksize : isize
+    chunksize : isize,
 }
 
-impl MutConfig for MainConfig {
-    fn to_hashmap(&self) -> HashMap<String, MutOptionVal> {
-        use MutOptionVal::*;
-        let mut map = HashMap::new();
-        let mut muts = HashMap::new();
-
-        let min = self.mutation.min.map_or(ONone(), |n| OInt(n));
-        let max = self.mutation.max.map_or(ONone(), |n| OInt(n));
-
-        muts.insert(String::from("min"), min);
-        muts.insert(String::from("max"), max);
-        muts.insert(String::from("chunksize"), OInt(self.mutation.chunksize));
-
-        map.insert(String::from("mutation"), OMap(muts));
-        map
-    }
-}
-
+#[derive(Debug)]
 pub struct BasicBender<'a> {
     filename: &'a str,
     extension: &'a str,
@@ -47,7 +33,7 @@ pub struct BasicBender<'a> {
 }
 
 impl<'a> BasicBender<'a> {
-    pub fn new(config_filename: &str, input: &'a str, output: Option<&'a str>) -> BasicBender<'a> {
+    pub fn new(config_filename: &str, input: &'a str, output: Option<&'a str>) -> Self {
         let mut return_bender = BasicBender {
             curr_iter : 1,
             config : TomlProcessor::parse_toml_as_options(config_filename).unwrap(),
@@ -62,7 +48,7 @@ impl<'a> BasicBender<'a> {
         return_bender
     }
 
-    pub fn init_file(&mut self, input: &'a str, output: Option<&'a str>) -> &mut BasicBender<'a> {
+    pub fn init_file(&mut self, input: &'a str, output: Option<&'a str>) -> &mut Self {
 
         // Set optional output
         let out = output.unwrap_or(input);
@@ -86,7 +72,7 @@ impl<'a> BasicBender<'a> {
         self
     }
 
-    pub fn mutate<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut BasicBender<'a> {
+    pub fn mutate<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
         // performs mutation
         mutation.mutate(
             self.data.as_mut(),

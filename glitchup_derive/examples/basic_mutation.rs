@@ -1,9 +1,8 @@
-use rand::Rng;
-use super::options::MutConfig;
+use glitchconsole::mutation::{Mutation};
+use glitchconsole::options::{MutConfig};
+use std::fmt::{Display, Formatter, Error};
 
-pub trait Mutation {
-    fn mutate(&mut self, data : &mut [u8], config : Box<&MutConfig>);
-}
+use rand::Rng;
 
 #[derive(Default)]
 pub struct BasicMutation {
@@ -15,7 +14,7 @@ pub struct BasicMutation {
 impl BasicMutation {
     fn process_options(&mut self, data: &[u8], config: Box<&MutConfig>) {
         // to avoid verbosity
-        use super::options::MutOptionVal::*;
+        use glitchconsole::options::MutOptionVal::*;
 
         let mutopts = &config.to_hashmap();
 
@@ -50,6 +49,12 @@ impl BasicMutation {
         else {
             self.max = data.len() - self.chunk_size;
         }
+    }
+}
+
+impl Display for BasicMutation {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "min={}_max={}_csize={}", self.min, self.max, self.chunk_size)
     }
 }
 

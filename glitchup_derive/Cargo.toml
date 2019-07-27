@@ -1,0 +1,18 @@
+[package]
+name = "glitchup_derive"
+description = "Helper macros for glitchup"
+version = "0.1.0"
+license = "MPL-2.0"
+repository = "https://github.com/Calmynt/glitchup"
+readme = "README.md"
+keywords = ["glitch", "databend", "derive", "corrupt"]
+authors = ["Calmynt <mctech26@gmail.com>"]
+edition = "2018"
+maintenance = { status = "actively-developed" }
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = {version = "0.15.41", features = ["extra-traits"]}
+quote = "0.6.13"

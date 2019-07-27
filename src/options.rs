@@ -2,10 +2,6 @@ use super::loaders::Loader;
 use serde::de::DeserializeOwned;
 use std::collections::HashMap;
 
-pub trait MutConfig {
-    fn to_hashmap(&self) -> HashMap<String, MutOptionVal>;
-}
-
 #[allow(dead_code)]
 #[derive(Debug)]
 pub enum MutOptionVal {
@@ -15,6 +11,10 @@ pub enum MutOptionVal {
     OArray(Vec<MutOptionVal>),
     OMap(HashMap<String, MutOptionVal>),
     ONone()
+}
+
+pub trait MutConfig {
+    fn to_hashmap(&self) -> HashMap<String, MutOptionVal>;
 }
 
 pub struct TomlProcessor;
