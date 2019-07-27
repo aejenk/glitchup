@@ -1,8 +1,14 @@
 [package]
 name = "glitchup"
+description = "A databending library/executable in Rust!"
 version = "0.1.0"
+license = "MPL-2.0"
+repository = "https://github.com/Calmynt/glitchup"
+readme = "README.md"
+keywords = ["databending", "glitch", "corrupt", "glitchup"]
 authors = ["Calmynt <mctech26@gmail.com>"]
 edition = "2018"
+maintenance = { status = "actively-developed" }
 
 [lib]
 name = "glitchconsole"
