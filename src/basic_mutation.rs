@@ -1,5 +1,5 @@
-use crate::mutations::{Mutation};
-use crate::options::{MutConfig};
+use glitchconsole::mutation::{Mutation};
+use glitchconsole::options::{MutConfig};
 
 use rand::Rng;
 
@@ -13,7 +13,7 @@ pub struct BasicMutation {
 impl BasicMutation {
     fn process_options(&mut self, data: &[u8], config: Box<&MutConfig>) {
         // to avoid verbosity
-        use crate::options::MutOptionVal::*;
+        use glitchconsole::options::MutOptionVal::*;
 
         let mutopts = &config.to_hashmap();
 
