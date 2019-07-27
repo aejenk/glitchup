@@ -1,5 +1,8 @@
 # `glitchup_derive`
 
+[![glitchup_derive](https://img.shields.io/crates/v/glitchup_derive.svg)](https://crates.io/crates/glitchup_derive)
+[![glitchup_derive](https://docs.rs/glitchup_derive/badge.svg)](https://docs.rs/crate/glitchup_derive)
+
 A group of procedural macros to assist in the use of `glitchup`.
 
 ## `#[derive(MutConfig)]`
