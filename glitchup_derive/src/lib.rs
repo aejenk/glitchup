@@ -203,6 +203,9 @@ fn extract_generic_types(data: &Data) -> Vec<Vec<&syn::PathSegment>> {
     something
 }
 
+/// Panics if the type name isn't compatible with the macro.
+/// 
+/// To be used by `derive` to avoid repetition.
 fn incompatible_type_panic(tyname: &String) {
     panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\nHint: If you meant to add a struct implementing MutConfig, please name them in the following format: '{0}Config'\nPlease use one of the supported types as shown below:\n {1:#?}",tyname, ["isize", "String", "bool", "Vec<...>", "Option<...>"]);
 }
