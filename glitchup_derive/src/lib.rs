@@ -12,10 +12,16 @@ pub fn derive(input: TokenStream) -> TokenStream {
     let sname = &ast.ident;
     let data = &ast.data;
 
+    if sname.to_string().find("Config").is_none() {
+        panic!("Please name the struct in a format like <name>Config (ex. MainConfig)");
+    };
+
     let fields = extract_fields(&data);
     let types = extract_types(&data);
     let generics = extract_generic_types(&data);
 
+
+    // generates an appropriate map insertion according to the field
     let insertions = (0..fields.len()).map(|i| {
         let fname = &fields[i].ident;
         let tyident = &types[i].ident;
@@ -23,6 +29,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
         let tyname = &tyident.to_string();
 
+        // isize, String, and bool are all simple cases
         if tyname == "isize" {
             quote! {
                 map.insert(String::from(stringify!(#fname)), OInt(self.#fname));
@@ -35,25 +42,35 @@ pub fn derive(input: TokenStream) -> TokenStream {
             quote! {
                 map.insert(String::from(stringify!(#fname)), OBool(self.#fname));
             }
+        // if the field type is a vector, it checks the type of the generic
+        // if it's supported, it then converts the Vector into OArray(Vec<MutOptionVal>)
         } else if tyname == "Vec" {
             let gen_name = &ty_gen[0].ident.to_string();
             let enum_name = match gen_name.as_str() {
                 "isize" => quote!{OInt},
                 "String" => quote!{OString},
                 "bool" => quote!{OBool},
-                _ => panic!("'{}' not supported. Please use only supported types.", gen_name.as_str())
+                _ => {
+                    incompatible_type_panic(&tyname);
+                    unimplemented!()
+                }
             };
 
             quote! {
                 map.insert(String::from(stringify!(#fname)), OArray(self.#fname.iter().map(|x| #enum_name(x)).collect()));
             }
+        // If the field type is an Option, it checks the type of the generic
+        // if it's supported, it then either converts the value into an ONone or its appropriate MutOptionVal
         } else if tyname == "Option" {
             let gen_name = &ty_gen[0].ident.to_string();
             let enum_name = match gen_name.as_str() {
                 "isize" => quote!{OInt},
                 "String" => quote!{OString},
                 "bool" => quote!{OBool},
-                _ => panic!("'{}' not supported. Please use only supported types.", gen_name.as_str())
+                _ => {
+                    incompatible_type_panic(&tyname);
+                    unimplemented!()
+                }
             };
 
             quote! {
@@ -64,11 +81,8 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 map.insert(String::from(stringify!(#fname)), OMap(self.#fname.to_hashmap()));
             }
         } else {
-            panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\n\n
-                    Hint: If you meant to add a struct implementing MutConfig, please\n
-                    name them in the following format: '{0}Config'\n\n
-                    Please use one of the supported types as shown below:\n {1:#?}",
-                    tyname, ["isize", "String", "bool", "Vec<...>", "Option<...>"]);
+            incompatible_type_panic(&tyname);
+            unimplemented!()
         }
     });
 
@@ -187,4 +201,8 @@ fn extract_generic_types(data: &Data) -> Vec<Vec<&syn::PathSegment>> {
     }).collect();
 
     something
+}
+
+fn incompatible_type_panic(tyname: &String) {
+    panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\nHint: If you meant to add a struct implementing MutConfig, please name them in the following format: '{0}Config'\nPlease use one of the supported types as shown below:\n {1:#?}",tyname, ["isize", "String", "bool", "Vec<...>", "Option<...>"]);
 }
