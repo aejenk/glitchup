@@ -2,7 +2,7 @@ use glitchconsole::options::{TomlProcessor, MutConfig, MutOptionVal};
 use glitchconsole::loaders::Loader;
 use glitchconsole::mutation::Mutation;
 
-use crate::basic_mutation;
+use basic_mutation::BasicMutation;
 use glitchup_derive::MutConfig;
 
 use serde::Deserialize;
