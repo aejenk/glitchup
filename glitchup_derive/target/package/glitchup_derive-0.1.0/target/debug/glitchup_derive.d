@@ -1,0 +1,1 @@
+C:\Users\Textman\Desktop\BendeRS\glitchup_derive\target\package\glitchup_derive-0.1.0\target\debug\glitchup_derive.dll: C:\Users\Textman\Desktop\BendeRS\glitchup_derive\target\package\glitchup_derive-0.1.0\src\lib.rs
