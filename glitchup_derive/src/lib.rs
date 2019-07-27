@@ -4,7 +4,7 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Data, Fields, DataStruct, FieldsNamed, punctuated::Punctuated, Field};
 
-/// Derives the `Tablefy` trait for any struct.
+/// Derives the `MutConfig` trait for any struct.
 #[proc_macro_derive(MutConfig)]
 pub fn derive(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
