@@ -11,9 +11,6 @@ pub struct BasicMutation {
     chunk_size : usize
 }
 
-impl BasicMutation {
-}
-
 impl Display for BasicMutation {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "min={}_max={}_csize={}", self.min, self.max, self.chunk_size)

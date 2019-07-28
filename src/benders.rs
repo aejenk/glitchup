@@ -10,13 +10,12 @@ use memmap::MmapMut;
 use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, MutConfig)]
-struct MainConfig {
+pub struct MainConfig {
     inputfile : String, // Input file.
     outputfile : Option<String>, // Manually setting the output file.
+    pub loops : Option<isize>,
     iterations: Vec<isize>, // How many iteration every "mutate" does
     chunksize: Vec<isize>, // A range of chunksizes.
-    pub datalen: isize, // Length of the data loaded.
-
 }
 
 /// A main controller of the databender.
@@ -27,13 +26,14 @@ pub struct KaBender {
     extension: String,
     output: String,
     data: MmapMut,
-    config: MainConfig,
+    pub config: MainConfig,
     log: Vec<String>
 }
 
 impl KaBender {
     /// Creates a new KaBender from the configuration.
     pub fn new(config_filename: &str) -> Self {
+        println!("Initialising bender...");
         let mut new = KaBender {
             config : TomlProcessor::parse_toml_as_options(config_filename).unwrap(),
             filename : String::new(),
@@ -44,7 +44,6 @@ impl KaBender {
         };
 
         new.init_file();
-        new.config.datalen = new.data.len() as isize;
         new
     }
 
@@ -55,6 +54,8 @@ impl KaBender {
     fn init_file(&mut self) -> &mut Self {
         use std::path::Path;
         use std::ffi::OsStr;
+
+        println!("Initialising file...");
 
         let input = &self.config.inputfile.clone();
 
@@ -88,6 +89,7 @@ impl KaBender {
 
     /// Configures the mutation passed with the Bender's configuration.
     pub fn configure_mutation<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
+        println!("Configuring mutation...");
         mutation.configure(Box::new(&self.config));
         self
     }
@@ -96,6 +98,7 @@ impl KaBender {
     /// 
     /// Also adds the mutation to the log.
     pub fn mutate_with<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
+        println!("Mutating data...");
         mutation.mutate(self.data.as_mut());
         self.log.push(mutation.to_string());
         self
@@ -121,18 +124,8 @@ impl KaBender {
     /// .restart()
     /// ```
     pub fn restart(&mut self) -> &mut Self {
-        // Generates an output name
-        let genoutput = format!("{name}__{muts}.{ext}",
-            name = self.output.clone(),
-            muts = self.log.join("---"),
-            ext = self.extension.clone(),
-        );
-
-        // Renames temporary file to actual output name
-        Loader::rename_file(
-            format!("temp.{}", self.extension).as_str(),
-            genoutput.as_str()
-        );
+        // "Saves" file
+        self.flush();
 
         // Memory maps another copy of the file
         self.init_file();
@@ -141,5 +134,23 @@ impl KaBender {
         self.log = Vec::new();
 
         self
+    }
+
+    /// "Saves" the file by renaming it from `temp.rs` to a generated output name.
+    pub fn flush(&mut self){
+        // Generates an output name
+        let genoutput = format!("{name}__{muts}.{ext}",
+            name = self.output.clone(),
+            muts = self.log.join("---"),
+            ext = self.extension.clone(),
+        );
+
+        println!("Renaming temporary file to {}", genoutput);
+
+        // Renames temporary file to actual output name
+        Loader::rename_file(
+            format!("temp.{}", self.extension).as_str(),
+            genoutput.as_str()
+        ).unwrap();
     }
 }
