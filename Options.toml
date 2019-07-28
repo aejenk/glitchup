@@ -1,9 +1,9 @@
-inputfile = "Cargo.toml"
-outputfile = "Lol.toml"
-times = 10
-iterations = [2, 5]
-chunksize = [2, 20]
-mutations = [["Void", "Chaos"], ["Loops"]]
+inputfile = "input/cactus.tif"
+outputfile = "output/cacfuck.tif"
+times = 1
+iterations = [200, 5000]
+chunksize = [200, 2000]
+mutations = [["Void", "Chaos"], ["Loops", "Void", "Chaos", "Loops"]]
 
 [loop_mut]
-loops = [3,5]
+loops = [3,8]
