@@ -36,7 +36,9 @@ pub struct LoopConfig {
 /// A main controller of the databender.
 /// 
 /// Manages the file handling, data storage, and controls mutations.
+#[derive(Debug)]
 pub struct KaBender {
+    outdir: String,
     extension: String,
     output: String,
     data: MmapMut,
@@ -52,6 +54,7 @@ impl KaBender {
             config : TomlProcessor::parse_toml_as_options(config_filename).unwrap(),
             extension : String::new(),
             output : String::new(),
+            outdir : String::new(),
             data : MmapMut::map_anon(1).unwrap(),
             log : Vec::new(),
         };
@@ -78,23 +81,35 @@ impl KaBender {
 
         let path = Path::new(&output);
 
-        // Splits file into extension and filename.
+        // Extracts the extension from the filename
         self.extension = String::from(path
             .extension()
             .and_then(OsStr::to_str)
             .unwrap()
             .clone());
 
-        self.output = String::from(path
-            .file_stem()
-            .and_then(OsStr::to_str)
-            .unwrap()
-            .clone());
+        // Extracts the output directory.
+        // In X/Y.../Z.EXT, this extracts X/Y.../
+        self.outdir = path.parent().and_then(Path::to_str).map_or(String::new(), |text| {
+            if text == "" {
+                String::new()
+            } else {
+                format!("{}/", text)
+            }
+        });
+
+        // Represents the full path, apart from the extension.
+        // In X/Y/.../Z.EXT, this extracts X/Y.../Z
+        self.output = format!(
+            "{}{}",
+            self.outdir,
+            path.file_stem().and_then(OsStr::to_str).unwrap().clone(),
+        );
 
         // Memory maps the temporary output file.
         self.data = Loader::init_file_mut(
             input,
-            format!("temp.{}", self.extension).as_str()
+            format!("{}temp.{}", self.outdir, self.extension).as_str()
         ).unwrap();
 
         self
@@ -162,7 +177,7 @@ impl KaBender {
 
         // Renames temporary file to actual output name
         Loader::rename_file(
-            format!("temp.{}", self.extension).as_str(),
+            format!("{}temp.{}", self.outdir, self.extension).as_str(),
             genoutput.as_str()
         ).unwrap();
     }

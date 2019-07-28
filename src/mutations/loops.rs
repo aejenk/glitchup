@@ -97,17 +97,19 @@ impl Mutation for Loops {
             let index = rng.gen_range(index_min, index_max);
 
             // Get whole file to allow circular access
-            if let Some(slice) = data.get_mut(index_min..index_max) {
+            if let Some(slice) = data.get_mut(0..len) {
                 // Loop for (self.chunk_size) times...
                 for _ in 0..self.chunk_size {
                     // Internally loop (self.loop) times...
                     for rep in 1..=self.loops {
                         // Get the index of the character to modify
                         let modind = 
-                            if index + self.chunk_size * rep < index_max 
-                                {index + self.chunk_size * rep}
-                            else
-                                {((index + self.chunk_size * rep) % index_max) + index_min};
+                            if index + self.chunk_size * rep < index_max {
+                                index + self.chunk_size * rep
+                            }
+                            else {
+                                ((index + self.chunk_size * rep) % index_max) + index_min
+                            };
                             
                         // "Repeat" current byte across other byte.
                         slice[modind] = slice[index];
