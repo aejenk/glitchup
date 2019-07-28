@@ -1,5 +1,9 @@
 inputfile = "Cargo.toml"
 outputfile = "Lol.toml"
-loops = 10
+times = 10
 iterations = [2, 5]
 chunksize = [2, 20]
+mutations = [["Void", "Chaos"], ["Loops"]]
+
+[loop_mut]
+loops = [3,5]

@@ -9,6 +9,9 @@ use memmap::MmapMut;
 
 use std::collections::HashMap;
 
+/// The main configuration of the bender.
+/// 
+/// Represents the entire TOML options file.
 #[derive(Debug, Deserialize, MutConfig)]
 #[allow(unused_attributes)] // pops up a warning for custom attributes apparently.
 pub struct MainConfig {
@@ -17,12 +20,17 @@ pub struct MainConfig {
     #[ignore]
     outputfile : Option<String>, // Manually setting the output file.
     #[ignore]
-    pub loops : Option<isize>,
+    pub times : Option<isize>,
     iterations: Vec<isize>, // How many iteration every "mutate" does
     chunksize: Vec<isize>, // A range of chunksizes.
-    
     #[ignore]
-    something: Vec<Vec<String>>,
+    pub mutations: Vec<Vec<String>>,
+    loop_mut: LoopConfig
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct LoopConfig {
+    loops: Vec<isize>
 }
 
 /// A main controller of the databender.
@@ -93,7 +101,7 @@ impl KaBender {
     }
 
     /// Configures the mutation passed with the Bender's configuration.
-    pub fn configure_mutation<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
+    pub fn configure_mutation(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
         println!("Configuring mutation...");
         mutation.configure(Box::new(&self.config));
         self
@@ -102,7 +110,7 @@ impl KaBender {
     /// Performs the mutation.
     /// 
     /// Also adds the mutation to the log.
-    pub fn mutate_with<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
+    pub fn mutate_with(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
         println!("Mutating data...");
         mutation.mutate(self.data.as_mut());
         self.log.push(mutation.to_string());
