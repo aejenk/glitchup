@@ -22,7 +22,6 @@ pub struct MainConfig {
 /// 
 /// Manages the file handling, data storage, and controls mutations.
 pub struct KaBender {
-    filename: String,
     extension: String,
     output: String,
     data: MmapMut,
@@ -36,7 +35,6 @@ impl KaBender {
         println!("Initialising bender...");
         let mut new = KaBender {
             config : TomlProcessor::parse_toml_as_options(config_filename).unwrap(),
-            filename : String::new(),
             extension : String::new(),
             output : String::new(),
             data : MmapMut::map_anon(1).unwrap(),
