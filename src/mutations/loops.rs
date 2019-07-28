@@ -32,8 +32,10 @@ impl Mutation for Loops {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
+        
+
         let mutopts = &config.to_hashmap();
-        let loopopts = if let OMap(map) = &mutopts["loops"] {
+        let loopopts = if let Some(OMap(map)) = &mutopts.get("loop_mut") {
             map
         } else {
             panic!("Sub-options for \"Loop\" were not found.");
@@ -45,10 +47,10 @@ impl Mutation for Loops {
                 self.ranges.it_range = (*min as usize, *max as usize);
             }
             else {
-                panic!("Iterations should be a list of numbers.");
+                panic!("\'iterations\' should be a list of numbers.");
             }
         } else {
-            panic!("Iterations (Vec) is a required option. Please set it globally.");
+            panic!("\'iterations\' (Vec) is a required option. Please set it globally.");
         }
 
         // Sets the Loops range
@@ -57,10 +59,10 @@ impl Mutation for Loops {
                 self.ranges.lp_range = (*min as usize, *max as usize);
             }
             else {
-                panic!("Loops should be a list of numbers.");
+                panic!("\'loops\' should be a list of numbers.");
             }
         } else {
-            panic!("Loops (Vec) is a required option. Please set it under [loops].");
+            panic!("\'loops\' (Vec) is a required option. Please set it under [loops].");
         }
 
         // Sets the Chunksize range
@@ -69,10 +71,10 @@ impl Mutation for Loops {
                 self.ranges.ch_range = (*min as usize, *max as usize);
             }
             else {
-                panic!("Chunksize should be a list of numbers.");
+                panic!("\'chunksize\' should be a list of numbers.");
             }
         } else {
-            panic!("Chunksize (Vec) is a required option. Please set it globally.");
+            panic!("\'chunksize\' (Vec) is a required option. Please set it globally.");
         }
     }
 
@@ -95,17 +97,19 @@ impl Mutation for Loops {
             let index = rng.gen_range(index_min, index_max);
 
             // Get whole file to allow circular access
-            if let Some(slice) = data.get_mut(index_min..index_max) {
+            if let Some(slice) = data.get_mut(0..len) {
                 // Loop for (self.chunk_size) times...
                 for _ in 0..self.chunk_size {
                     // Internally loop (self.loop) times...
                     for rep in 1..=self.loops {
                         // Get the index of the character to modify
                         let modind = 
-                            if index + self.chunk_size * rep < index_max 
-                                {index + self.chunk_size * rep}
-                            else
-                                {((index + self.chunk_size * rep) % index_max) + index_min};
+                            if index + self.chunk_size * rep < index_max {
+                                index + self.chunk_size * rep
+                            }
+                            else {
+                                ((index + self.chunk_size * rep) % index_max) + index_min
+                            };
                             
                         // "Repeat" current byte across other byte.
                         slice[modind] = slice[index];

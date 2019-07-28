@@ -9,19 +9,36 @@ use memmap::MmapMut;
 
 use std::collections::HashMap;
 
+/// The main configuration of the bender.
+/// 
+/// Represents the entire TOML options file.
 #[derive(Debug, Deserialize, MutConfig)]
+#[allow(unused_attributes)] // pops up a warning for custom attributes apparently.
 pub struct MainConfig {
+    #[ignore]
     inputfile : String, // Input file.
+    #[ignore]
     outputfile : Option<String>, // Manually setting the output file.
-    pub loops : Option<isize>,
+    #[ignore]
+    pub times : Option<isize>,
     iterations: Vec<isize>, // How many iteration every "mutate" does
     chunksize: Vec<isize>, // A range of chunksizes.
+    #[ignore]
+    pub mutations: Vec<Vec<String>>,
+    loop_mut: LoopConfig
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct LoopConfig {
+    loops: Vec<isize>
 }
 
 /// A main controller of the databender.
 /// 
 /// Manages the file handling, data storage, and controls mutations.
+#[derive(Debug)]
 pub struct KaBender {
+    outdir: String,
     extension: String,
     output: String,
     data: MmapMut,
@@ -37,6 +54,7 @@ impl KaBender {
             config : TomlProcessor::parse_toml_as_options(config_filename).unwrap(),
             extension : String::new(),
             output : String::new(),
+            outdir : String::new(),
             data : MmapMut::map_anon(1).unwrap(),
             log : Vec::new(),
         };
@@ -63,30 +81,42 @@ impl KaBender {
 
         let path = Path::new(&output);
 
-        // Splits file into extension and filename.
+        // Extracts the extension from the filename
         self.extension = String::from(path
             .extension()
             .and_then(OsStr::to_str)
             .unwrap()
             .clone());
 
-        self.output = String::from(path
-            .file_stem()
-            .and_then(OsStr::to_str)
-            .unwrap()
-            .clone());
+        // Extracts the output directory.
+        // In X/Y.../Z.EXT, this extracts X/Y.../
+        self.outdir = path.parent().and_then(Path::to_str).map_or(String::new(), |text| {
+            if text == "" {
+                String::new()
+            } else {
+                format!("{}/", text)
+            }
+        });
+
+        // Represents the full path, apart from the extension.
+        // In X/Y/.../Z.EXT, this extracts X/Y.../Z
+        self.output = format!(
+            "{}{}",
+            self.outdir,
+            path.file_stem().and_then(OsStr::to_str).unwrap().clone(),
+        );
 
         // Memory maps the temporary output file.
         self.data = Loader::init_file_mut(
             input,
-            format!("temp.{}", self.extension).as_str()
+            format!("{}temp.{}", self.outdir, self.extension).as_str()
         ).unwrap();
 
         self
     }
 
     /// Configures the mutation passed with the Bender's configuration.
-    pub fn configure_mutation<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
+    pub fn configure_mutation(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
         println!("Configuring mutation...");
         mutation.configure(Box::new(&self.config));
         self
@@ -95,7 +125,7 @@ impl KaBender {
     /// Performs the mutation.
     /// 
     /// Also adds the mutation to the log.
-    pub fn mutate_with<T: Mutation>(&mut self, mutation: &mut Box<T>) -> &mut Self {
+    pub fn mutate_with(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
         println!("Mutating data...");
         mutation.mutate(self.data.as_mut());
         self.log.push(mutation.to_string());
@@ -147,7 +177,7 @@ impl KaBender {
 
         // Renames temporary file to actual output name
         Loader::rename_file(
-            format!("temp.{}", self.extension).as_str(),
+            format!("{}temp.{}", self.outdir, self.extension).as_str(),
             genoutput.as_str()
         ).unwrap();
     }

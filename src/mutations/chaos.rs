@@ -38,10 +38,10 @@ impl Mutation for Chaos {
                 self.ranges.it_range = (*min as u64, *max as u64);
             }
             else {
-                panic!("Iterations should be a list of numbers.");
+                panic!("\'iterations\' should be a list of numbers.");
             }
         } else {
-            panic!("Iterations (Vec) is a required option. Please set it globally.");
+            panic!("\'iterations\' (Vec) is a required option. Please set it globally.");
         }
 
         // Sets the Chunksize range
@@ -50,10 +50,10 @@ impl Mutation for Chaos {
                 self.ranges.ch_range = (*min as usize, *max as usize);
             }
             else {
-                panic!("Chunksize should be a list of numbers.");
+                panic!("\'chunksize\' should be a list of numbers.");
             }
         } else {
-            panic!("Chunksize (Vec) is a required option. Please set it globally.");
+            panic!("\'chunksize\' (Vec) is a required option. Please set it globally.");
         }
     }
 
