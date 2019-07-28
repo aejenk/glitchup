@@ -52,12 +52,12 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 "bool" => quote!{OBool},
                 _ => {
                     incompatible_type_panic(&tyname);
-                    unimplemented!()
+                    quote!{}
                 }
             };
 
             quote! {
-                map.insert(String::from(stringify!(#fname)), OArray(self.#fname.iter().map(|x| #enum_name(x)).collect()));
+                map.insert(String::from(stringify!(#fname)), OArray(self.#fname.iter().map(|x| #enum_name(*x)).collect()));
             }
         // If the field type is an Option, it checks the type of the generic
         // if it's supported, it then either converts the value into an ONone or its appropriate MutOptionVal
@@ -69,7 +69,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 "bool" => quote!{OBool},
                 _ => {
                     incompatible_type_panic(&tyname);
-                    unimplemented!()
+                    quote!{}
                 }
             };
 
@@ -82,7 +82,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
             }
         } else {
             incompatible_type_panic(&tyname);
-            unimplemented!()
+            quote!{}
         }
     });
 
@@ -142,6 +142,7 @@ fn extract_types(data: &Data) -> Vec<&syn::PathSegment>{
         } = field {
             &segments[0]
         } else {
+            eprintln!("References are not supported with #[derive(MutConfig)]. Reference found within type.");
             unimplemented!()
         }
     }).collect::<Vec<&syn::PathSegment>>()
@@ -191,6 +192,7 @@ fn extract_generic_types(data: &Data) -> Vec<Vec<&syn::PathSegment>> {
                 )) = a {
                     &segments[0]
                 } else {
+                    eprintln!("References are not supported with #[derive(MutConfig)]. Reference found within generic.");
                     unimplemented!()
                 }
             }).collect()
