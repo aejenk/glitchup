@@ -27,7 +27,7 @@ dependencies = [
 name = "glitchup"
 version = "0.1.0"
 dependencies = [
- "glitchup_derive 0.1.1",
+ "glitchup_derive 0.1.2",
  "memmap 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.97 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -36,7 +36,7 @@ dependencies = [
 
 [[package]]
 name = "glitchup_derive"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "quote 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "syn 0.15.41 (registry+https://github.com/rust-lang/crates.io-index)",
