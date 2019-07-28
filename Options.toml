@@ -3,7 +3,7 @@ outputfile = "output/cacfuck.tif"
 times = 1
 iterations = [200, 5000]
 chunksize = [200, 2000]
-mutations = [["Void", "Chaos"], ["Loops", "Void", "Chaos", "Loops"]]
+mutations = [["Loops", "Void"], ["Void", "Chaos"], ["Chaos", "Loops"]]
 
 [loop_mut]
 loops = [3,8]
