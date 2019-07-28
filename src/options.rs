@@ -52,7 +52,9 @@ impl TomlProcessor {
         let mut result = Loader::load_file_as_string(filename).unwrap();
 
         // Parse the toml file into a serializable struct
-        let config : T = toml::from_str(result.as_mut_str()).unwrap();
+        let config : T = toml::from_str(result.as_mut_str()).unwrap_or_else(
+            |err| {panic!("Error occured while serialising options: {}", err);}
+        );
 
         Ok(config)
     }
