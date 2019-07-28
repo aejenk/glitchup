@@ -1,4 +1,4 @@
-use std::fs::{OpenOptions, copy};
+use std::fs::{OpenOptions, copy, rename};
 use std::io::Read;
 use memmap::MmapMut;
 use std::path::PathBuf;
@@ -42,5 +42,10 @@ impl Loader {
         file.read_to_string(&mut output)?;
 
         Ok(output)
+    }
+
+    pub fn rename_file(from: &str, to: &str) -> std::io::Result<()> {
+        rename(from, to)?;
+        Ok(())
     }
 }
