@@ -25,21 +25,25 @@ fn main() {
     //
     // Viva type coercion.
 
+    // Initialises a bender with a configuration file.
     let mut bender = KaBender::new("Options.toml");
 
+    // Retrieves some options from the configuration.
     let loops = bender.config.times.clone().unwrap_or(1);
     let muts = bender.config.mutations.clone();
 
+    // Sets up the available mutations in the app
     let mut mapmuts : HashMap<String, Box<dyn Mutation>> = HashMap::new();
-
     mapmuts.insert(String::from("Void"), Box::new(Void::default()));
     mapmuts.insert(String::from("Chaos"), Box::new(Chaos::default()));
     mapmuts.insert(String::from("Loops"), Box::new(Loops::default()));
 
+    // Configures all included mutations
     for (_ , v) in mapmuts.iter_mut() {
         bender.configure_mutation(v);
     }
 
+    // Executes databending
     for _ in 0..loops {
         for mutcombo in &muts {
             for mutation in mutcombo {
@@ -52,4 +56,6 @@ fn main() {
             bender.restart();
         }
     }
+
+    bender.flush();
 }
