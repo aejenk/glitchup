@@ -16,7 +16,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
         panic!("Please name the struct in a format like <name>Config (ex. MainConfig)");
     };
 
-    let fields = extract_fields(&data);
+    let fields = filter_ignore_out(extract_fields(&data));
     let types = extract_types(&data);
     let generics = extract_generic_types(&data);
 
@@ -120,9 +120,27 @@ fn extract_fields(data: &Data) -> &Punctuated<Field, syn::token::Comma>{
     }
 }
 
+fn not_ignored(field: &Field) -> bool {
+    for attr in &field.attrs {
+        let segs = &attr.path.segments;
+
+        for seg in segs {
+            let attrname = seg.ident.to_string();
+
+            if attrname == "ignore" {return false;};
+        }
+    };
+
+    true
+}
+
+fn filter_ignore_out(fields: &Punctuated<Field, syn::token::Comma>) -> Vec<&Field> {
+    fields.iter().filter(|f| not_ignored(*f)).collect()
+}
+
 /// Extracts the types of the fields of the struct
 fn extract_types(data: &Data) -> Vec<&syn::PathSegment>{
-    let fields = extract_fields(data);
+    let fields = filter_ignore_out(extract_fields(data));
 
     // let type_idents: Vec<&syn::Ident> = 
     fields.iter().map(|field| {

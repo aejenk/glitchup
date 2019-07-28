@@ -10,12 +10,19 @@ use memmap::MmapMut;
 use std::collections::HashMap;
 
 #[derive(Debug, Deserialize, MutConfig)]
+#[allow(unused_attributes)] // pops up a warning for custom attributes apparently.
 pub struct MainConfig {
+    #[ignore]
     inputfile : String, // Input file.
+    #[ignore]
     outputfile : Option<String>, // Manually setting the output file.
+    #[ignore]
     pub loops : Option<isize>,
     iterations: Vec<isize>, // How many iteration every "mutate" does
     chunksize: Vec<isize>, // A range of chunksizes.
+    
+    #[ignore]
+    something: Vec<Vec<String>>,
 }
 
 /// A main controller of the databender.
