@@ -32,15 +32,15 @@ pub fn derive(input: TokenStream) -> TokenStream {
         // isize, String, and bool are all simple cases
         if tyname == "isize" {
             quote! {
-                map.insert(String::from(stringify!(#fname)), OInt(self.#fname));
+                map.insert(String::from(stringify!(#fname)), OInt(self.#fname.clone()));
             }
         } else if tyname == "String" {
             quote! {
-                map.insert(String::from(stringify!(#fname)), OString(self.#fname));
+                map.insert(String::from(stringify!(#fname)), OString(self.#fname.clone()));
             }
         } else if tyname == "bool" {
             quote! {
-                map.insert(String::from(stringify!(#fname)), OBool(self.#fname));
+                map.insert(String::from(stringify!(#fname)), OBool(self.#fname.clone()));
             }
         // if the field type is a vector, it checks the type of the generic
         // if it's supported, it then converts the Vector into OArray(Vec<MutOptionVal>)
@@ -57,7 +57,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
             };
 
             quote! {
-                map.insert(String::from(stringify!(#fname)), OArray(self.#fname.iter().map(|x| #enum_name(*x)).collect()));
+                map.insert(String::from(stringify!(#fname)), OArray(self.#fname.iter().map(|x| #enum_name(x.clone())).collect()));
             }
         // If the field type is an Option, it checks the type of the generic
         // if it's supported, it then either converts the value into an ONone or its appropriate MutOptionVal
@@ -74,7 +74,7 @@ pub fn derive(input: TokenStream) -> TokenStream {
             };
 
             quote! {
-                map.insert(String::from(stringify!(#fname)), self.#fname.map_or(ONone(), |x| #enum_name(x)));
+                map.insert(String::from(stringify!(#fname)), self.#fname.clone().map_or(ONone(), |x| #enum_name(x.clone())));
             }
         } else if tyname.find("Config").is_some() {
             quote! {
@@ -102,8 +102,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
             }
         }
     };
-
-    // panic!(expandify.to_string());
 
     expandify.into()
 }
