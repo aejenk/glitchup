@@ -1,0 +1,5 @@
+inputfile = "Cargo.toml"
+outputfile = "Lol.toml"
+loops = 10
+iterations = [2, 5]
+chunksize = [2, 20]
