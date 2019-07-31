@@ -1,9 +1,9 @@
 inputfile = "input/cactus.tif"
 outputfile = "output/cacfuck.tif"
 times = 1
-iterations = [200, 5000]
-chunksize = [200, 2000]
-mutations = [["Loops", "Void"], ["Void", "Chaos"], ["Chaos", "Loops"]]
+iterations = [10000, 10001]
+chunksize = [10000, 10001]
+mutations = [["Void", "Chaos","Loops","Reverse"]]
 
 [loop_mut]
-loops = [3,8]
+loops = [1,2]
