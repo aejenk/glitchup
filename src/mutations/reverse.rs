@@ -6,12 +6,9 @@ use glitchconsole::{
 use std::fmt::{Display, Formatter, Error};
 
 use rand::Rng;
-use rand_xorshift::XorShiftRng;
-use rand_core::SeedableRng;
-use rand_core::RngCore;
 
 #[derive(Default)]
-pub struct Chaos {
+pub struct Reverse {
     iterations : u64,
     chunk_size : usize,
     ranges : Ranges,
@@ -23,13 +20,13 @@ struct Ranges {
     ch_range : (usize, usize),
 }
 
-impl Display for Chaos {
+impl Display for Reverse {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "CHAOS_iter={}_csize={}", self.iterations, self.chunk_size)
+        write!(f, "REVERSE_iter={}_csize={}", self.iterations, self.chunk_size)
     }
 }
 
-impl Mutation for Chaos {
+impl Mutation for Reverse {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
@@ -73,16 +70,11 @@ impl Mutation for Chaos {
         self.iterations = rng.gen_range(it_min, it_max);
         self.chunk_size = rng.gen_range(ch_min, ch_max);
 
-        // Random number generator focused on speed.
-        let mut xrng = XorShiftRng::from_rng(rng.clone()).unwrap();
-
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
 
             if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
-                for chr in slice.iter_mut() {
-                    *chr = xrng.next_u32() as u8
-                }
+                slice.reverse();
             }
         }
     }
