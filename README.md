@@ -51,7 +51,3 @@ Of course, you do not need to use them, you can make your own. I just thought of
 ### So where's the program?
 
 For now, I've been developing and refining the library. My reasoning behind this was that my executable would depend on my library, so the better I make the library, the more easily and the more powerful my executable can become. Of course this means that for now, there's no usable/interesting binary, only a proof of concept as can be seen in the [`examples`](examples) folder.
-
-## Some examples
-
-_Coming soon (when the executable is ready!)_
