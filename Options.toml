@@ -3,6 +3,9 @@ outputfile = "output/cacfuck.tif"
 times = 1
 iterations = [10000, 10001]
 chunksize = [10000, 10001]
+# Available mutations:
+# Void, Chaos, Loops, Reverse,
+# Shift, Shuffle, Swap
 mutations = [["Void", "Chaos","Loops","Reverse"]]
 
 [loop_mut]

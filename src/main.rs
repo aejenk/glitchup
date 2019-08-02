@@ -6,7 +6,8 @@ use benders::KaBender;
 
 mod mutations;
 use mutations::{
-    void::Void, chaos::Chaos, loops::Loops, reverse::Reverse
+    void::Void, chaos::Chaos, loops::Loops, reverse::Reverse,
+    shift::Shift, shuffle::Shuffle, swap::Swap
 };
 
 use std::collections::HashMap;
@@ -38,6 +39,9 @@ fn main() {
     mapmuts.insert(String::from("Chaos"), Box::new(Chaos::default()));
     mapmuts.insert(String::from("Loops"), Box::new(Loops::default()));
     mapmuts.insert(String::from("Reverse"), Box::new(Reverse::default()));
+    mapmuts.insert(String::from("Shift"), Box::new(Shift::default()));
+    mapmuts.insert(String::from("Shuffle"), Box::new(Shuffle::default()));
+    mapmuts.insert(String::from("Swap"), Box::new(Swap::default()));
 
     // Configures all included mutations
     for (_ , v) in mapmuts.iter_mut() {
