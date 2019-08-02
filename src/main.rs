@@ -6,7 +6,7 @@ use benders::KaBender;
 
 mod mutations;
 use mutations::{
-    void::Void, chaos::Chaos, loops::Loops
+    void::Void, chaos::Chaos, loops::Loops, reverse::Reverse
 };
 
 use std::collections::HashMap;
@@ -37,6 +37,7 @@ fn main() {
     mapmuts.insert(String::from("Void"), Box::new(Void::default()));
     mapmuts.insert(String::from("Chaos"), Box::new(Chaos::default()));
     mapmuts.insert(String::from("Loops"), Box::new(Loops::default()));
+    mapmuts.insert(String::from("Reverse"), Box::new(Reverse::default()));
 
     // Configures all included mutations
     for (_ , v) in mapmuts.iter_mut() {
@@ -51,8 +52,10 @@ fn main() {
                 if let None = mt {
                     panic!("{} is not a valid mutation name.", mutation);
                 };
+                println!("Mutating with {}...", mutation);
                 bender.mutate_with(&mut mt.unwrap());
             }
+            println!("Restarting bender...");
             bender.restart();
         }
     }
