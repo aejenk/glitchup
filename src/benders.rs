@@ -25,12 +25,25 @@ pub struct MainConfig {
     chunksize: Vec<isize>, // A range of chunksizes.
     #[ignore]
     pub mutations: Vec<Vec<String>>,
-    loop_mut: LoopConfig
+    loop_mut: LoopConfig,
+    increase_mut: IncConfig,
+    rainbow_mut: RainConfig
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
 pub struct LoopConfig {
     loops: Vec<isize>
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct IncConfig {
+    increase_by: Vec<isize>
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct RainConfig {
+    accelerate_by: Vec<isize>,
+    accelerate_in: Vec<isize> 
 }
 
 /// A main controller of the databender.
@@ -166,14 +179,19 @@ impl KaBender {
 
     /// "Saves" the file by renaming it from `temp.rs` to a generated output name.
     pub fn flush(&mut self){
+        let mut temp_muts = self.log.join("---");
+        temp_muts.truncate(200);
+
         // Generates an output name
         let genoutput = format!("{name}__{muts}.{ext}",
             name = self.output.clone(),
-            muts = self.log.join("---"),
+            muts = temp_muts,
             ext = self.extension.clone(),
         );
 
         println!("Renaming temporary file to {}", genoutput);
+
+        println!("{}temp.{}", self.outdir, self.extension);
 
         // Renames temporary file to actual output name
         Loader::rename_file(

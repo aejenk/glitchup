@@ -22,7 +22,7 @@ struct Ranges {
 
 impl Display for Swap {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "SWAP_iter={}_csize={}", self.iterations, self.chunk_size)
+        write!(f, "SWP_it={}_ch={}", self.iterations, self.chunk_size)
     }
 }
 
@@ -63,23 +63,29 @@ impl Mutation for Swap {
 
         let (it_min, it_max) = self.ranges.it_range;
         let (ch_min, ch_max) = self.ranges.ch_range;
-
-        let len = data.len();
-        let (index_min, index_max) = (len/50, len);
+        let (index_min, index_max) = (data.len()/50, data.len());
 
         self.iterations = rng.gen_range(it_min, it_max);
         self.chunk_size = rng.gen_range(ch_min, ch_max);
 
-        for _ in 0..self.iterations {
-            let splitdex = rng.gen_range(index_min, index_max);
-
-            let (left, right) = data
+        let sl = data
                 .get_mut(index_min..index_max)
-                .unwrap()
-                .split_at_mut(splitdex);
+                .unwrap();
+
+        let len = sl.len();
+
+        for _ in 0..self.iterations {
+            let splitdex = rng.gen_range(0, index_max-index_min);
+
+            let (left, right) = sl.split_at_mut(splitdex);
 
             let index1 = rng.gen_range(0, splitdex - self.chunk_size);
             let index2 = rng.gen_range(0, len - splitdex - self.chunk_size);
+
+            let (llen, rlen) = {(left.len(), right.len())};
+
+            println!("len:{}, i1a/i1b:{}/{}", llen, index1, index1+self.chunk_size);
+            println!("len:{}, i2a/i2b:{}/{}", rlen, index2, index2+self.chunk_size);
 
             let slice1 = left.get_mut(index1..index1+self.chunk_size).unwrap();
             let slice2 = right.get_mut(index2..index2+self.chunk_size).unwrap();

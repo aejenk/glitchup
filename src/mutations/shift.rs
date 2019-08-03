@@ -5,6 +5,8 @@ use glitchconsole::{
 
 use std::fmt::{Display, Formatter, Error};
 
+use moveslice::Moveslice;
+
 use rand::Rng;
 
 #[derive(Default)]
@@ -22,7 +24,7 @@ struct Ranges {
 
 impl Display for Shift {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "SHIFT_iter={}_csize={}", self.iterations, self.chunk_size)
+        write!(f, "SFT_it={}_ch={}", self.iterations, self.chunk_size)
     }
 }
 
@@ -72,14 +74,17 @@ impl Mutation for Shift {
 
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
-            let m_index = rng.gen_range(index_min, index_max - self.chunk_size);
+            let m_index = rng.gen_range(0, index_max - self.chunk_size - index_min);
 
-            if let Some(slice) = data.get_mut(index_min..index_max){
-                moveslice::moveslice(
-                    slice,
-                    (index-index_min, self.chunk_size+index-index_min),
+            if let Some(mut slice) = data.get_mut(index_min..index_max){
+                let result = slice.try_moveslice(
+                    index-index_min..self.chunk_size+index-index_min,
                     m_index
-                )
+                );
+
+                if let Err(res) = result {
+                    eprintln!("Shifting failed. Moveslice returned error: {:?}", res);
+                };
             }
         }
     }

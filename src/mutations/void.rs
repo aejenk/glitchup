@@ -22,7 +22,7 @@ struct Ranges {
 
 impl Display for Void {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "VOID_iter={}_csize={}", self.iterations, self.chunk_size)
+        write!(f, "VOID_it={}_ch={}", self.iterations, self.chunk_size)
     }
 }
 

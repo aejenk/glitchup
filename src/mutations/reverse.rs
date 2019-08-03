@@ -22,7 +22,7 @@ struct Ranges {
 
 impl Display for Reverse {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "REVERSE_iter={}_csize={}", self.iterations, self.chunk_size)
+        write!(f, "RVR_it={}_ch={}", self.iterations, self.chunk_size)
     }
 }
 
