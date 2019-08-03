@@ -27,7 +27,7 @@ pub struct MainConfig {
     pub mutations: Vec<Vec<String>>,
     loop_mut: LoopConfig,
     increase_mut: IncConfig,
-    rainbow_mut: RainConfig
+    gradient_mut: GraConfig
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
@@ -41,7 +41,7 @@ pub struct IncConfig {
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
-pub struct RainConfig {
+pub struct GraConfig {
     accelerate_by: Vec<isize>,
     accelerate_in: Vec<isize> 
 }
@@ -130,7 +130,6 @@ impl KaBender {
 
     /// Configures the mutation passed with the Bender's configuration.
     pub fn configure_mutation(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
-        println!("Configuring mutation...");
         mutation.configure(Box::new(&self.config));
         self
     }
@@ -139,7 +138,6 @@ impl KaBender {
     /// 
     /// Also adds the mutation to the log.
     pub fn mutate_with(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
-        println!("Mutating data...");
         mutation.mutate(self.data.as_mut());
         self.log.push(mutation.to_string());
         self
@@ -180,7 +178,10 @@ impl KaBender {
     /// "Saves" the file by renaming it from `temp.rs` to a generated output name.
     pub fn flush(&mut self){
         let mut temp_muts = self.log.join("---");
-        temp_muts.truncate(200);
+        if temp_muts.len() > 200 {
+            temp_muts.truncate(200);
+            println!("Truncating mutation name due to length...");
+        }
 
         // Generates an output name
         let genoutput = format!("{name}__{muts}.{ext}",

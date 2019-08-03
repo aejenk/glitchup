@@ -8,7 +8,7 @@ use std::fmt::{Display, Formatter, Error};
 use rand::Rng;
 
 #[derive(Default)]
-pub struct Rainbow {
+pub struct Gradient {
     iterations : u64,
     chunk_size : usize,
     accelerate_by : usize,
@@ -24,22 +24,22 @@ struct Ranges {
     ai_range : (usize, usize),
 }
 
-impl Display for Rainbow {
+impl Display for Gradient {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "RBW_it={}_ch={}_by={}_in={}", self.iterations, self.chunk_size, self.accelerate_by, self.accelerate_in)
+        write!(f, "GRT_it={}_ch={}_by={}_in={}", self.iterations, self.chunk_size, self.accelerate_by, self.accelerate_in)
     }
 }
 
-impl Mutation for Rainbow {
+impl Mutation for Gradient {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
         let mutopts = &config.to_hashmap();
 
-        let raiopts = if let Some(OMap(map)) = &mutopts.get("rainbow_mut") {
+        let raiopts = if let Some(OMap(map)) = &mutopts.get("gradient_mut") {
             map
         } else {
-            panic!("Sub-options for 'Rainbow' not found. Please add them under '[rainbow_mut]'")
+            panic!("Sub-options for 'Gradient' not found. Please add them under '[gradient_mut]'")
         };
 
         // Sets the Iterations range

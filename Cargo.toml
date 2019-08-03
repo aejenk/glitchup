@@ -24,7 +24,6 @@ rand = "0.7.0"
 toml = "0.5.1"
 serde = {version = "1.0.97", features = ["derive"]}
 glitchup_derive = "0.2.0"
-# glitchup_derive = {path = "glitchup_derive"}
 rand_xorshift = "0.2"
 rand_core = "0.5"
-moveslice = "1.1.0"
+moveslice = "2.0.1"

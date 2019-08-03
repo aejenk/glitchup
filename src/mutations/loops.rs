@@ -104,12 +104,21 @@ impl Mutation for Loops {
                     for rep in 1..=self.loops {
                         // Get the index of the character to modify
                         let modind = 
-                            if index + self.chunk_size * rep < index_max {
+                            if index + self.chunk_size * rep < index_max{
                                 index + self.chunk_size * rep
                             }
                             else {
-                                ((index + self.chunk_size * rep) % index_max) + index_min
+                                ((index + self.chunk_size * rep) % (index_max-index_min)) + index_min
                             };
+
+                        // Shows important info before panic - for catching bugs.
+                        if index > len || modind > len {
+                            eprintln!("Diagnostics before panic.");
+                            eprintln!("index:{}, min/max:{}/{}, modind:{}, chsize:{}, in+ch+tp:{} % max {} + min {}",
+                             index, index_min, index_max, modind, self.chunk_size, index + self.chunk_size * rep,
+                             (index + self.chunk_size * rep) % index_max, ((index + self.chunk_size * rep) % index_max) + index_min);
+                            panic!("Out of bounds error. If you see this, please contact the developer.");
+                        }
                             
                         // "Repeat" current byte across other byte.
                         slice[modind] = slice[index];
