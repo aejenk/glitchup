@@ -8,43 +8,42 @@ use std::fmt::{Display, Formatter, Error};
 use rand::Rng;
 
 #[derive(Default)]
-pub struct Loops {
-    iterations : usize,
+pub struct Increase {
+    iterations : u64,
     chunk_size : usize,
-    loops : usize,
+    increase_by: usize,
     ranges : Ranges,
 }
 
 #[derive(Default)]
 struct Ranges {
-    it_range : (usize, usize),
-    lp_range : (usize, usize),
+    it_range : (u64, u64),
     ch_range : (usize, usize),
+    ic_range : (usize, usize)
 }
 
-impl Display for Loops {
+impl Display for Increase {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "LOOP_it={}_ch={}_lps={}", self.iterations, self.chunk_size, self.loops)
+        write!(f, "INC_it={}_ch={}_by={}", self.iterations, self.chunk_size, self.increase_by)
     }
 }
 
-impl Mutation for Loops {
+impl Mutation for Increase {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
-        
-
         let mutopts = &config.to_hashmap();
-        let loopopts = if let Some(OMap(map)) = &mutopts.get("loop_mut") {
+
+        let incopts = if let Some(OMap(map)) = &mutopts.get("increase_mut") {
             map
         } else {
-            panic!("Sub-options for 'Loops' not found. Please add them under '[loop_mut]'")
+            panic!("Sub-options for 'Increase' not found. Please add them under '[increase_mut]'")
         };
 
         // Sets the Iterations range
         if let OArray(range) = &mutopts["iterations"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as usize, *max as usize);
+                self.ranges.it_range = (*min as u64, *max as u64);
             }
             else {
                 panic!("\'iterations\' should be a list of numbers.");
@@ -53,16 +52,16 @@ impl Mutation for Loops {
             panic!("\'iterations\' (Vec) is a required option. Please set it globally.");
         }
 
-        // Sets the Loops range
-        if let OArray(range) = &loopopts["loops"] {
+        // Sets the Increase range
+        if let OArray(range) = &incopts["increase_by"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.lp_range = (*min as usize, *max as usize);
+                self.ranges.ic_range = (*min as usize, *max as usize);
             }
             else {
-                panic!("\'loops\' should be a list of numbers.");
+                panic!("\'increase_by\' should be a list of numbers.");
             }
         } else {
-            panic!("\'loops\' (Vec) is a required option. Please set it under [loop_mut].");
+            panic!("\'increase_by\' (Vec) is a required option. Please set it under '[increase_mut]'.");
         }
 
         // Sets the Chunksize range
@@ -84,36 +83,21 @@ impl Mutation for Loops {
 
         let (it_min, it_max) = self.ranges.it_range;
         let (ch_min, ch_max) = self.ranges.ch_range;
-        let (lp_min, lp_max) = self.ranges.lp_range;
+        let (in_min, in_max) = self.ranges.ic_range;
 
         let len = data.len();
         let (index_min, index_max) = (len/50, len);
 
         self.iterations = rng.gen_range(it_min, it_max);
         self.chunk_size = rng.gen_range(ch_min, ch_max);
-        self.loops      = rng.gen_range(lp_min, lp_max);
+        self.increase_by= rng.gen_range(in_min, in_max);
 
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
 
-            // Get whole file to allow circular access
-            if let Some(slice) = data.get_mut(0..len) {
-                // Loop for (self.chunk_size) times...
-                for _ in 0..self.chunk_size {
-                    // Internally loop (self.loop) times...
-                    for rep in 1..=self.loops {
-                        // Get the index of the character to modify
-                        let modind = 
-                            if index + self.chunk_size * rep < index_max {
-                                index + self.chunk_size * rep
-                            }
-                            else {
-                                ((index + self.chunk_size * rep) % index_max) + index_min
-                            };
-                            
-                        // "Repeat" current byte across other byte.
-                        slice[modind] = slice[index];
-                    }
+            if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
+                for chr in slice.iter_mut() {
+                    *chr = ((*chr as usize + self.increase_by) % 256) as u8;
                 }
             }
         }

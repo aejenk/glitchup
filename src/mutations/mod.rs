@@ -5,3 +5,5 @@ pub mod reverse;
 pub mod shift;
 pub mod shuffle;
 pub mod swap;
+pub mod increase;
+pub mod rainbow;

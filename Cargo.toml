@@ -27,4 +27,4 @@ glitchup_derive = "0.2.0"
 # glitchup_derive = {path = "glitchup_derive"}
 rand_xorshift = "0.2"
 rand_core = "0.5"
-moveslice = "1.0.2"
+moveslice = "1.1.0"

@@ -1,12 +1,22 @@
-inputfile = "input/cactus.tif"
-outputfile = "output/cacfuck.tif"
-times = 1
-iterations = [10000, 10001]
-chunksize = [10000, 10001]
+inputfile = "input/Giygas.avi"
+outputfile = "output/Giygas.avi"
+times = 2
+iterations = [10, 11]
+chunksize = [100000, 1000000]
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
-mutations = [["Void", "Chaos","Loops","Reverse"]]
+# Increase, Rainbow
+mutations = [
+    ["Loops", "Loops"]
+]
 
 [loop_mut]
-loops = [1,2]
+loops = [1,1000]
+
+[increase_mut]
+increase_by = [1,255]
+
+[rainbow_mut]
+accelerate_by = [1,2]
+accelerate_in = [100,1000]

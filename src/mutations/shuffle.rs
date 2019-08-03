@@ -23,7 +23,7 @@ struct Ranges {
 
 impl Display for Shuffle {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "SHUFFLE_iter={}_csize={}", self.iterations, self.chunk_size)
+        write!(f, "SHF_it={}_ch={}", self.iterations, self.chunk_size)
     }
 }
 
