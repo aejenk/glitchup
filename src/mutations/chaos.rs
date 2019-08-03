@@ -25,7 +25,7 @@ struct Ranges {
 
 impl Display for Chaos {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "CHAOS_iter={}_csize={}", self.iterations, self.chunk_size)
+        write!(f, "CHS_it={}_ch={}", self.iterations, self.chunk_size)
     }
 }
 

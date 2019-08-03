@@ -25,12 +25,25 @@ pub struct MainConfig {
     chunksize: Vec<isize>, // A range of chunksizes.
     #[ignore]
     pub mutations: Vec<Vec<String>>,
-    loop_mut: LoopConfig
+    loop_mut: LoopConfig,
+    increase_mut: IncConfig,
+    gradient_mut: GraConfig
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
 pub struct LoopConfig {
     loops: Vec<isize>
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct IncConfig {
+    increase_by: Vec<isize>
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct GraConfig {
+    accelerate_by: Vec<isize>,
+    accelerate_in: Vec<isize> 
 }
 
 /// A main controller of the databender.
@@ -117,7 +130,6 @@ impl KaBender {
 
     /// Configures the mutation passed with the Bender's configuration.
     pub fn configure_mutation(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
-        println!("Configuring mutation...");
         mutation.configure(Box::new(&self.config));
         self
     }
@@ -126,7 +138,6 @@ impl KaBender {
     /// 
     /// Also adds the mutation to the log.
     pub fn mutate_with(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
-        println!("Mutating data...");
         mutation.mutate(self.data.as_mut());
         self.log.push(mutation.to_string());
         self
@@ -166,14 +177,22 @@ impl KaBender {
 
     /// "Saves" the file by renaming it from `temp.rs` to a generated output name.
     pub fn flush(&mut self){
+        let mut temp_muts = self.log.join("---");
+        if temp_muts.len() > 200 {
+            temp_muts.truncate(200);
+            println!("Truncating mutation name due to length...");
+        }
+
         // Generates an output name
         let genoutput = format!("{name}__{muts}.{ext}",
             name = self.output.clone(),
-            muts = self.log.join("---"),
+            muts = temp_muts,
             ext = self.extension.clone(),
         );
 
         println!("Renaming temporary file to {}", genoutput);
+
+        println!("{}temp.{}", self.outdir, self.extension);
 
         // Renames temporary file to actual output name
         Loader::rename_file(
