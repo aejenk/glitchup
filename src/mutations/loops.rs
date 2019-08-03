@@ -24,7 +24,7 @@ struct Ranges {
 
 impl Display for Loops {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "LOOP_iter={}_csize={}_loops={}", self.iterations, self.chunk_size, self.loops)
+        write!(f, "LOOP_it={}_ch={}_lps={}", self.iterations, self.chunk_size, self.loops)
     }
 }
 
@@ -38,7 +38,7 @@ impl Mutation for Loops {
         let loopopts = if let Some(OMap(map)) = &mutopts.get("loop_mut") {
             map
         } else {
-            panic!("Sub-options for \"Loop\" were not found.");
+            panic!("Sub-options for 'Loops' not found. Please add them under '[loop_mut]'")
         };
 
         // Sets the Iterations range
@@ -62,7 +62,7 @@ impl Mutation for Loops {
                 panic!("\'loops\' should be a list of numbers.");
             }
         } else {
-            panic!("\'loops\' (Vec) is a required option. Please set it under [loops].");
+            panic!("\'loops\' (Vec) is a required option. Please set it under [loop_mut].");
         }
 
         // Sets the Chunksize range
@@ -104,12 +104,21 @@ impl Mutation for Loops {
                     for rep in 1..=self.loops {
                         // Get the index of the character to modify
                         let modind = 
-                            if index + self.chunk_size * rep < index_max {
+                            if index + self.chunk_size * rep < index_max{
                                 index + self.chunk_size * rep
                             }
                             else {
-                                ((index + self.chunk_size * rep) % index_max) + index_min
+                                ((index + self.chunk_size * rep) % (index_max-index_min)) + index_min
                             };
+
+                        // Shows important info before panic - for catching bugs.
+                        if index > len || modind > len {
+                            eprintln!("Diagnostics before panic.");
+                            eprintln!("index:{}, min/max:{}/{}, modind:{}, chsize:{}, in+ch+tp:{} % max {} + min {}",
+                             index, index_min, index_max, modind, self.chunk_size, index + self.chunk_size * rep,
+                             (index + self.chunk_size * rep) % index_max, ((index + self.chunk_size * rep) % index_max) + index_min);
+                            panic!("Out of bounds error. If you see this, please contact the developer.");
+                        }
                             
                         // "Repeat" current byte across other byte.
                         slice[modind] = slice[index];
