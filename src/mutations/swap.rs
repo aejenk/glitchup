@@ -75,22 +75,27 @@ impl Mutation for Swap {
         let len = sl.len();
 
         for _ in 0..self.iterations {
-            let splitdex = rng.gen_range(0, index_max-index_min);
+            let splitdex = rng.gen_range(self.chunk_size, index_max-index_min-self.chunk_size);
 
             let (left, right) = sl.split_at_mut(splitdex);
 
             let index1 = rng.gen_range(0, splitdex - self.chunk_size);
             let index2 = rng.gen_range(0, len - splitdex - self.chunk_size);
-
             let (llen, rlen) = {(left.len(), right.len())};
 
-            println!("len:{}, i1a/i1b:{}/{}", llen, index1, index1+self.chunk_size);
-            println!("len:{}, i2a/i2b:{}/{}", rlen, index2, index2+self.chunk_size);
+            let slice1 = left.get_mut(index1..index1+self.chunk_size);
+            let slice2 = right.get_mut(index2..index2+self.chunk_size);
 
-            let slice1 = left.get_mut(index1..index1+self.chunk_size).unwrap();
-            let slice2 = right.get_mut(index2..index2+self.chunk_size).unwrap();
+            if slice1.is_none() || slice2.is_none() {
+                println!("Diagnostics before panic.");
+                println!("i1r:{}, i2r:{}", splitdex - self.chunk_size, len - splitdex - self.chunk_size);
+                println!("flen:{}, dex:{}, ch:{}", len, splitdex, self.chunk_size);
+                println!("len:{}, i1a/i1b:{}/{}", llen, index1, index1+self.chunk_size);
+                println!("len:{}, i2a/i2b:{}/{}", rlen, index2, index2+self.chunk_size);
+                panic!("Out of bounds error. If you see this, please contact the developer.");
+            }
 
-            slice1.swap_with_slice(slice2);
+            slice1.unwrap().swap_with_slice(slice2.unwrap());
         }
     }
 }

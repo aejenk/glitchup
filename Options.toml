@@ -1,14 +1,16 @@
-inputfile = "input/Giygas.avi"
-outputfile = "output/Giygas.avi"
-times = 2
-iterations = [10, 11]
-chunksize = [100000, 1000000]
+inputfile = "input/giygas.avi"
+outputfile = "output/g.avi"
+times = 5
+iterations = [1, 11]
+chunksize = [5_000_000, 100_000_000]
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
-# Increase, Rainbow
+# Increase, Gradient
 mutations = [
-    ["Loops", "Loops"]
+    ["Loops", "Reverse", "Swap", "Increase", "Gradient"],
+    ["Shuffle", "Chaos"],
+    ["Shift"]
 ]
 
 [loop_mut]
@@ -17,6 +19,6 @@ loops = [1,1000]
 [increase_mut]
 increase_by = [1,255]
 
-[rainbow_mut]
+[gradient_mut]
 accelerate_by = [1,2]
-accelerate_in = [100,1000]
+accelerate_in = [100_000, 5_000_000]

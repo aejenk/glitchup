@@ -14,7 +14,6 @@ A databender library/executable made in Rust. Comes with option loading, and pro
     - [Why memory mapping?](#Why-memory-mapping)
     - [What if I want to make my own Loader or Options?](#What-if-I-want-to-make-my-own-Loader-or-Options)
     - [So where's the program?](#So-wheres-the-program)
-  - [Some examples](#Some-examples)
 
 ## Some Q&A
 
@@ -50,4 +49,14 @@ Of course, you do not need to use them, you can make your own. I just thought of
 
 ### So where's the program?
 
-For now, I've been developing and refining the library. My reasoning behind this was that my executable would depend on my library, so the better I make the library, the more easily and the more powerful my executable can become. Of course this means that for now, there's no usable/interesting binary, only a proof of concept as can be seen in the [`examples`](examples) folder.
+The current program can be found as `glitchup.exe`. It is quite unrefined, and fair to say is still in its *beta* stage, but it contains support for the following mutation names:
+
+<center> Void, Chaos, Loops, Reverse, Shift, Shuffle, Swap, Increase, Gradient </center>
+
+The following mutations are planned, but not finished yet:
+
+<center> Echo, Anti, Smear, Sort, Magnify, Reflect, Handshake, Speedup, Slowdown </center>
+
+Note that you will need the `Options.toml` configuration file for the program to work. There is an example of such in this repository as well.
+
+You may encounter some **panics**. Some may instruct you to contact me. If a panic doesn't say this message, feel free to ask and I'll try to help out - but if it does, then that means that, _congratulations_ you have found a bug!
