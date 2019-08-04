@@ -1,20 +1,20 @@
 inputfile = "input/cactus.tif"
 outputfile = "output/cactus.tif"
-times = 5
-iterations = [1]
-chunksize = [5, 10]
+times = 1
+iterations = [1005]
+chunksize = [50000]
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
 # Increase, Gradient
 mutations = [
-    ["Loops", "Reverse", "Swap", "Increase", "Gradient"],
+    ["Reverse", "Swap", "Increase", "Gradient"],
     ["Shuffle", "Chaos"],
     ["Shift"]
 ]
 
 [LoopConfig]
-loops = [1,1000]
+loops = [10]
 
 [IncreaseConfig]
 increase_by = [1,255]
@@ -22,3 +22,7 @@ increase_by = [1,255]
 [GradientConfig]
 accelerate_by = [1,2]
 accelerate_in = [100_000, 5_000_000]
+
+[ShiftConfig]
+iterations = [10]
+chunksize = [5000]

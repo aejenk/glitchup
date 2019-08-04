@@ -32,50 +32,35 @@ impl Mutation for Loops {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
-        
-
-        let mutopts = &config.to_hashmap();
-        let loopopts = if let Some(OMap(map)) = &mutopts.get("loop_mut") {
-            map
-        } else {
-            panic!("Sub-options for 'Loops' not found. Please add them under '[loop_mut]'")
+        let cfg = &config.to_hashmap();
+        let loopcfg = if let OMap(map) = &cfg["LoopConfig"] {map} else {
+            println!("not configuring LOOPS - not included.");
+            return;
         };
 
         // Sets the Iterations range
-        if let OArray(range) = &mutopts["iterations"] {
+        if let OArray(range) = &loopcfg["iterations"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
                 self.ranges.it_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'iterations\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'iterations\' (Vec) is a required option. Please set it globally.");
-        }
-
-        // Sets the Loops range
-        if let OArray(range) = &loopopts["loops"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.lp_range = (*min as usize, *max as usize);
-            }
-            else {
-                panic!("\'loops\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'loops\' (Vec) is a required option. Please set it under [loop_mut].");
-        }
+            else {panic!("ITERS not [INT,INT]")}
+        } else {panic!("ITERS not ARR")};
 
         // Sets the Chunksize range
-        if let OArray(range) = &mutopts["chunksize"] {
+        if let OArray(range) = &loopcfg["chunksize"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
                 self.ranges.ch_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'chunksize\' should be a list of numbers.");
+            else {panic!("CHUNKSIZE not [INT,INT]")}
+        } else {panic!("CHUNKSIZE not ARR")};
+
+        // Sets the Loops range
+        if let OArray(range) = &loopcfg["loops"] {
+            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
+                self.ranges.lp_range = (*min as usize, *max as usize);
             }
-        } else {
-            panic!("\'chunksize\' (Vec) is a required option. Please set it globally.");
-        }
+            else {panic!("LOOPS not [INT,INT]")}
+        } else {panic!("LOOPS not ARR")};
     }
 
     fn mutate(&mut self, data: &mut [u8]) {

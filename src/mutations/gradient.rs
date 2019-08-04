@@ -9,7 +9,7 @@ use rand::Rng;
 
 #[derive(Default)]
 pub struct Gradient {
-    iterations : u64,
+    iterations : usize,
     chunk_size : usize,
     accelerate_by : usize,
     accelerate_in : usize,
@@ -18,7 +18,7 @@ pub struct Gradient {
 
 #[derive(Default)]
 struct Ranges {
-    it_range : (u64, u64),
+    it_range : (usize, usize),
     ch_range : (usize, usize),
     ab_range : (usize, usize),
     ai_range : (usize, usize),
@@ -34,61 +34,43 @@ impl Mutation for Gradient {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
-        let mutopts = &config.to_hashmap();
-
-        let raiopts = if let Some(OMap(map)) = &mutopts.get("gradient_mut") {
-            map
-        } else {
-            panic!("Sub-options for 'Gradient' not found. Please add them under '[gradient_mut]'")
+        let cfg = &config.to_hashmap();
+        let gradientcfg = if let OMap(map) = &cfg["GradientConfig"] {map} else {
+            println!("not configuring GRADIENT - not included.");
+            return;
         };
 
         // Sets the Iterations range
-        if let OArray(range) = &mutopts["iterations"] {
+        if let OArray(range) = &gradientcfg["iterations"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as u64, *max as u64);
+                self.ranges.it_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'iterations\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'iterations\' (Vec) is a required option. Please set it globally.");
-        }
-
-        // Sets the AccBy range
-        if let OArray(range) = &raiopts["accelerate_by"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ab_range = (*min as usize, *max as usize);
-            }
-            else {
-                panic!("\'accelerate_by\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'accelerate_by\' (Vec) is a required option. Please set it under '[rainbow_mut]'.");
-        }
-
-        // Sets the Iterations range
-        if let OArray(range) = &raiopts["accelerate_in"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ai_range = (*min as usize, *max as usize);
-            }
-            else {
-                panic!("\'accelerate_in\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'accelerate_in\' (Vec) is a required option. Please set it under '[rainbow_mut]'.");
-        }
+            else {panic!("ITERS not [INT,INT]")}
+        } else {panic!("ITERS not ARR")};
 
         // Sets the Chunksize range
-        if let OArray(range) = &mutopts["chunksize"] {
+        if let OArray(range) = &gradientcfg["chunksize"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
                 self.ranges.ch_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'chunksize\' should be a list of numbers.");
+            else {panic!("CHUNKSIZE not [INT,INT]")}
+        } else {panic!("CHUNKSIZE not ARR")};
+
+        // Sets the accelerate-by range
+        if let OArray(range) = &gradientcfg["accelerate_by"] {
+            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
+                self.ranges.ab_range = (*min as usize, *max as usize);
             }
-        } else {
-            panic!("\'chunksize\' (Vec) is a required option. Please set it globally.");
-        }
+            else {panic!("ACCELERATEBY not [INT,INT]")}
+        } else {panic!("ACCELERATEBY not ARR")};
+
+        // Sets the accelerate-in range
+        if let OArray(range) = &gradientcfg["accelerate_in"] {
+            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
+                self.ranges.ai_range = (*min as usize, *max as usize);
+            }
+            else {panic!("ACCELERATEIN not [INT,INT]")}
+        } else {panic!("ACCELERATEIN not ARR")};
     }
 
     fn mutate(&mut self, data: &mut [u8]) {
