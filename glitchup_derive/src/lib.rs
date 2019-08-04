@@ -2,7 +2,9 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput, Data, Fields, DataStruct, FieldsNamed, punctuated::Punctuated, Field};
+use syn::{parse_macro_input, DeriveInput, Data, Fields,
+          DataStruct, FieldsNamed, punctuated::Punctuated, Field,
+          PathSegment};
 
 /// Derives the `MutConfig` trait for any struct.
 #[proc_macro_derive(MutConfig)]
@@ -226,4 +228,94 @@ fn extract_generic_types(data: &Data) -> Vec<Vec<&syn::PathSegment>> {
 /// To be used by `derive` to avoid repetition.
 fn incompatible_type_panic(tyname: &String) {
     panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\nHint: If you meant to add a struct implementing MutConfig, please name them in the following format: '{0}Config'\nPlease use one of the supported types as shown below:\n {1:#?}",tyname, ["isize", "String", "bool", "Vec<...>", "Option<...>"]);
+}
+
+
+fn into_oVal(field: &Field, ty: &PathSegment) -> proc_macro2::TokenStream {
+    let fname = &field.ident;
+    let tname = &ty.ident;
+    let tstr  = &tname.to_string();
+
+    if tstr == "isize" {
+        quote! {OInt(self.#fname.clone());}
+    } else if tstr == "String" {
+        quote! {OString(self.#fname.clone());}
+    } else if tstr == "bool" {
+        quote! {OBool(self.#fname.clone());}
+    } else if tstr == "Vec" {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let v = into_subVal(&gen, &String::from("a"));
+        quote! {OArray(self.#fname.iter().map(|x| #v).collect());}
+    } else if tstr.find("Option").is_some() {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let v = into_subVal(&gen, &String::from("a"));
+        quote! {self.#fname.clone().map_or(ONone(), |x| #v);}
+    } else if tstr == "Config" {
+        quote! {OMap(self.#fname.to_hashmap());}
+    } else {
+        unimplemented!()
+    }
+}
+
+fn get_first_generic(ty: &PathSegment) -> &PathSegment {
+    let args =
+        if let syn::PathArguments::AngleBracketed(
+            syn::AngleBracketedGenericArguments {
+                ref args,
+                ..
+            }
+        ) = &ty.arguments {
+            args
+        } else {
+            unimplemented!();
+        };
+
+    let typs : Vec<&PathSegment> = args.iter().map(|a| {
+        if let syn::GenericArgument::Type(syn::Type::Path(
+            syn::TypePath {
+                path : syn::Path {
+                    ref segments,
+                    ..
+                },
+                ..
+            }
+        )) = a {
+            &segments[0]
+        } else {
+            unimplemented!()
+        }
+    }).collect();
+
+    typs[0]
+}
+
+fn into_subVal(ty: &PathSegment, arg_name: &String) -> proc_macro2::TokenStream {
+    let tname = &ty.ident;
+    let tstr = &tname.to_string();
+
+    if tstr == "isize" {
+        quote! {OInt(#arg_name.clone())}
+    } else if tstr == "String" {
+        quote! {OString(#arg_name.clone())}
+    } else if tstr == "bool" {
+        quote! {OBool(#arg_name.clone())}
+    } else if tstr == "Vec" {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let new_arg = arg_name.clone() + "a";
+        let v = into_subVal(&gen, &new_arg);
+        quote! {OArray(#arg_name.iter().map(|#new_arg| #v).collect())}
+    } else if tstr.find("Option").is_some() {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let new_arg = arg_name.clone() + "a";
+        let v = into_subVal(&gen, &new_arg);
+        quote! {#arg_name.clone().map_or(ONone(), |#new_arg| #v)}
+    } else if tstr == "Config" {
+        quote! {OMap(#arg_name.to_hashmap())}
+    } else {
+        unimplemented!()
+    }
 }
