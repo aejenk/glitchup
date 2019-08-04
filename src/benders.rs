@@ -13,7 +13,7 @@ use std::collections::HashMap;
 /// 
 /// Represents the entire TOML options file.
 #[derive(Debug, Deserialize, MutConfig)]
-#[allow(unused_attributes)] // pops up a warning for custom attributes apparently.
+#[allow(unused_attributes, non_snake_case)] // pops up a warning for custom attributes apparently.
 pub struct MainConfig {
     /// The name of the input file.
     /// Is required.
@@ -56,57 +56,57 @@ pub struct MainConfig {
     GradientConfig: Option<GradientConfig>
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct VoidConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct ChaosConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct LoopConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
     loops: Option<Vec<isize>>
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct ReverseConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct ShiftConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct ShuffleConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct SwapConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct IncreaseConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
     increase_by: Option<Vec<isize>>
 }
 
-#[derive(Debug, Deserialize, MutConfig)]
+#[derive(Debug, Deserialize, Clone, MutConfig)]
 pub struct GradientConfig {
     iterations: Option<Vec<isize>>,
     chunksize: Option<Vec<isize>>,
@@ -142,6 +142,7 @@ impl KaBender {
             log : Vec::new(),
         };
 
+        new.setup_config();
         new.init_file();
         new
     }
@@ -167,41 +168,41 @@ impl KaBender {
         let gradient_exists = muts_passed.contains(&String::from("Gradient"));
 
         // VoidConfig setup
-        if let (None, true) = (self.config.VoidConfig, void_exists) {
+        if self.config.VoidConfig.is_none() && void_exists {
             self.config.VoidConfig = Some(VoidConfig {
-                iterations: Some(self.config.iterations),
-                chunksize: Some(self.config.chunksize)
+                iterations: Some(self.config.iterations.clone()),
+                chunksize: Some(self.config.chunksize.clone())
             });
         }
-        else if let (Some(x), true) = (self.config.VoidConfig, void_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.VoidConfig, void_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[VoidConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[VoidConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
         };
 
         // ChaosConfig setup
-        if let (None, true) = (self.config.ChaosConfig, chaos_exists) {
+        if self.config.ChaosConfig.is_none() && chaos_exists {
             self.config.ChaosConfig = Some(ChaosConfig {
-                iterations: Some(self.config.iterations),
-                chunksize: Some(self.config.chunksize)
+                iterations: Some(self.config.iterations.clone()),
+                chunksize: Some(self.config.chunksize.clone())
             });
         }
-        else if let (Some(x), true) = (self.config.ChaosConfig, chaos_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.ChaosConfig, chaos_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[ChaosConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[ChaosConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
         };
 
         // LoopConfig setup
-        if let (None, true) = (self.config.LoopConfig, loops_exists) {
+        if self.config.LoopConfig.is_none() && loops_exists {
             let example = r#"
                 [LoopConfig]
                 loops = [1,2]
@@ -212,86 +213,94 @@ impl KaBender {
                     \nThe following is an example:
                     \n{}", example);
         }
-        else if let (Some(x), true) = (self.config.LoopConfig, loops_exists) {
-            if let None = x.loops {
+        else if let (Some(x), true) = (&mut self.config.LoopConfig, loops_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
+                {Some(verify_num_option(&ch, "chunksize", "under '[LoopConfig]'"))}
+                else {Some(self.config.chunksize.clone())};
+            
+            x.iterations = if let Some(ch) = &x.iterations
+                {Some(verify_num_option(&ch, "iterations", "under '[LoopConfig]'"))}
+                else {Some(self.config.iterations.clone())};
+
+            if x.loops.is_none() {
                 panic!("You have added a 'Loops' mutation, but haven't passed the 'loops' option.
                         \nFor example: 'loops = [1,5]'");
             }
-            else if let Some(l) = x.loops {
+            else if let Some(l) = &x.loops {
                 x.loops = Some(verify_num_option(&l, "loops", "under '[LoopConfig]'"));
             };
         };
 
         // ReverseConfig setup
-        if let (None, true) = (self.config.ReverseConfig, reverse_exists) {
+        if self.config.ReverseConfig.is_none() && reverse_exists {
             self.config.ReverseConfig = Some(ReverseConfig {
-                iterations: Some(self.config.iterations),
-                chunksize: Some(self.config.chunksize)
+                iterations: Some(self.config.iterations.clone()),
+                chunksize: Some(self.config.chunksize.clone())
             });
         }
-        else if let (Some(x), true) = (self.config.ReverseConfig, reverse_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.ReverseConfig, reverse_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[ReverseConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[ReverseConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
         };
 
         // ShiftConfig setup
-        if let (None, true) = (self.config.ShiftConfig, shift_exists) {
+        if self.config.ShiftConfig.is_none() && shift_exists {
             self.config.ShiftConfig = Some(ShiftConfig {
-                iterations: Some(self.config.iterations),
-                chunksize: Some(self.config.chunksize)
+                iterations: Some(self.config.iterations.clone()),
+                chunksize: Some(self.config.chunksize.clone())
             });
         }
-        else if let (Some(x), true) = (self.config.ShiftConfig, shift_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.ShiftConfig, shift_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[ShiftConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[ShiftConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
         };
 
         // ShuffleConfig setup
-        if let (None, true) = (self.config.ShuffleConfig, shuffle_exists) {
+        if self.config.ShuffleConfig.is_none() && shuffle_exists {
             self.config.ShuffleConfig = Some(ShuffleConfig {
-                iterations: Some(self.config.iterations),
-                chunksize: Some(self.config.chunksize)
+                iterations: Some(self.config.iterations.clone()),
+                chunksize: Some(self.config.chunksize.clone())
             });
         }
-        else if let (Some(x), true) = (self.config.ShuffleConfig, shuffle_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.ShuffleConfig, shuffle_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[ShuffleConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[ShuffleConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
         };
 
         // SwapConfig setup
-        if let (None, true) = (self.config.SwapConfig, swap_exists) {
+        if self.config.SwapConfig.is_none() && swap_exists {
             self.config.SwapConfig = Some(SwapConfig {
-                iterations: Some(self.config.iterations),
-                chunksize: Some(self.config.chunksize)
+                iterations: Some(self.config.iterations.clone()),
+                chunksize: Some(self.config.chunksize.clone())
             });
         }
-        else if let (Some(x), true) = (self.config.SwapConfig, swap_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.SwapConfig, swap_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[SwapConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[SwapConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
         };
 
         // IncreaseConfig setup
-        if let (None, true) = (self.config.IncreaseConfig, increase_exists) {
+        if self.config.IncreaseConfig.is_none() && increase_exists {
             let example = r#"
                 [IncreaseConfig]
                 increase_by = [1,2]
@@ -302,18 +311,26 @@ impl KaBender {
                     \nThe following is an example:
                     \n{}", example);
         }
-        else if let (Some(x), true) = (self.config.IncreaseConfig, increase_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.IncreaseConfig, increase_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[IncreaseConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[IncreaseConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
+
+            if x.increase_by.is_none() {
+                panic!("You have added a 'Increase' mutation, but haven't passed the 'increase_by' option.
+                        \nFor example: 'increase_by = [1,5]'");
+            }
+            else if let Some(l) = &x.increase_by {
+                x.increase_by = Some(verify_num_option(&l, "increase_by", "under '[LoopConfig]'"));
+            };
         };
 
         // GradientConfig setup
-        if let (None, true) = (self.config.GradientConfig, gradient_exists) {
+        if self.config.GradientConfig.is_none() && gradient_exists {
             let example = r#"
                 [GradientConfig]
                 accelerate_by = [1,2]
@@ -326,14 +343,30 @@ impl KaBender {
                     \nThe following is an example:
                     \n{}", example);
         }
-        else if let (Some(x), true) = (self.config.GradientConfig, gradient_exists) {
-            x.chunksize = if let Some(ch) = x.chunksize
+        else if let (Some(x), true) = (&mut self.config.GradientConfig, gradient_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
                 {Some(verify_num_option(&ch, "chunksize", "under '[GradientConfig]'"))}
-                else {Some(self.config.chunksize)};
+                else {Some(self.config.chunksize.clone())};
             
-            x.iterations = if let Some(ch) = x.iterations
+            x.iterations = if let Some(ch) = &x.iterations
                 {Some(verify_num_option(&ch, "iterations", "under '[GradientConfig]'"))}
-                else {Some(self.config.iterations)};
+                else {Some(self.config.iterations.clone())};
+
+            if x.accelerate_by.is_none() {
+                panic!("You have added a 'Gradient' mutation, but haven't passed the 'accelerate_by' option.
+                        \nFor example: 'accelerate_by = [1,5]'");
+            }
+            else if let Some(l) = &x.accelerate_by {
+                x.accelerate_by = Some(verify_num_option(&l, "accelerate_by", "under '[GradientConfig]'"));
+            };
+
+            if x.accelerate_in.is_none() {
+                panic!("You have added a 'Gradient' mutation, but haven't passed the 'accelerate_in' option.
+                        \nFor example: 'accelerate_in = [1,5]'");
+            }
+            else if let Some(l) = &x.accelerate_in {
+                x.accelerate_in = Some(verify_num_option(&l, "accelerate_in", "under '[GradientConfig]'"));
+            };
         };
 
         fn verify_num_option(v : &Vec<isize>, name: &str, location: &str) -> Vec<isize> {
