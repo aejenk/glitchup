@@ -1,8 +1,8 @@
-inputfile = "input/giygas.avi"
-outputfile = "output/g.avi"
+inputfile = "input/cactus.tif"
+outputfile = "output/cactus.tif"
 times = 5
-iterations = [1, 11]
-chunksize = [5_000_000, 100_000_000]
+iterations = [1]
+chunksize = [5, 10]
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
@@ -13,12 +13,12 @@ mutations = [
     ["Shift"]
 ]
 
-[loop_mut]
+[LoopConfig]
 loops = [1,1000]
 
-[increase_mut]
+[IncreaseConfig]
 increase_by = [1,255]
 
-[gradient_mut]
+[GradientConfig]
 accelerate_by = [1,2]
 accelerate_in = [100_000, 5_000_000]
