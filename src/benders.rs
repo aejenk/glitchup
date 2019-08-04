@@ -167,6 +167,17 @@ impl KaBender {
         let increase_exists = muts_passed.contains(&String::from("Increase"));
         let gradient_exists = muts_passed.contains(&String::from("Gradient"));
 
+        // If mutation not included, reset it to None.
+        if !void_exists         {self.config.VoidConfig         = None};
+        if !chaos_exists        {self.config.ChaosConfig        = None};
+        if !loops_exists        {self.config.LoopConfig         = None};
+        if !reverse_exists      {self.config.ReverseConfig      = None};
+        if !shift_exists        {self.config.ShiftConfig        = None};
+        if !shuffle_exists      {self.config.ShuffleConfig      = None};
+        if !swap_exists         {self.config.SwapConfig         = None};
+        if !increase_exists     {self.config.IncreaseConfig     = None};
+        if !gradient_exists     {self.config.GradientConfig     = None};
+
         // VoidConfig setup
         if self.config.VoidConfig.is_none() && void_exists {
             self.config.VoidConfig = Some(VoidConfig {
