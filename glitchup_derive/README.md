@@ -15,8 +15,8 @@ This derivation macro is used to derive `MutConfig` for any compatible struct. F
     - `String`
     - `bool`
   - **Generics**
-    - `Vec<{Supported Primitive}>`
-    - `Option<{Supported Primitive}>`
+    - `Vec<{Supported Type (incl. Generic)}>`
+    - `Option<{Supported Type (incl. Generic)}>`
 
 These specific primitives were selected due to the `MutOptionVal` using said values. 
 
@@ -26,7 +26,8 @@ The `MutConfig` trait implements a `to_hashmap` function, where the fields of th
 #[derive(Debug, Deserialize, MutConfig)]
 struct MainConfig {
     mutation : MutationConfig,
-    mutations : Vec<Vec<String>> // will fail!
+    mutations : Vec<Vec<String>> // works!
+    mapint   : Vec<Vec<u8>> // fails!
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
@@ -37,14 +38,15 @@ struct MutationConfig {
 }
 ```
 
-In `MainConfig` above, `mutations` would fail. However, as an example, we **need** it in order for our application to work. We know that no `Mutation` will use it, so what we can do is add the `#[ignore]` attribute:
+In `MainConfig` above, `mapint` would fail, since it uses the incompatible type `u8`. However, we **need** it in order for our application to work. Let's assume that no `Mutation` will use it. Therefore, what we can do is add the `#[ignore]` attribute:
 
 ```rust
 #[derive(Debug, Deserialize, MutConfig)]
 struct MainConfig {
     mutation : MutationConfig,
+    mutations : Vec<Vec<String>> // works!
     #[ignore]
-    mutations : Vec<Vec<String>> // all ok now!
+    mapint   : Vec<Vec<u8>> // all ok now!
 }
 ...
 ```

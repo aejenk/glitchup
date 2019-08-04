@@ -174,7 +174,7 @@ fn incompatible_type_panic(tyname: &String) {
     panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\nHint: If you meant to add a struct implementing MutConfig, please name them in the following format: '{0}Config'\nPlease use one of the supported types as shown below:\n {1:#?}",tyname, ["isize", "String", "bool", "Vec<...>", "Option<...>"]);
 }
 
-
+/// Turns a field into an OVal. Uses the field name and its type.
 fn into_oval(field: &Field, ty: &PathSegment) -> proc_macro2::TokenStream {
     let fname = &field.ident;
     let tname = &ty.ident;
@@ -203,6 +203,9 @@ fn into_oval(field: &Field, ty: &PathSegment) -> proc_macro2::TokenStream {
     }
 }
 
+/// Retrieves the first generic of a type.
+/// 
+/// For example: `Result<isize, usize>` -> `isize`.
 fn get_first_generic(ty: &PathSegment) -> &PathSegment {
     let args =
         if let syn::PathArguments::AngleBracketed(
@@ -235,6 +238,13 @@ fn get_first_generic(ty: &PathSegment) -> &PathSegment {
     typs[0]
 }
 
+/// Used by `into_oval` to represent nested OValues.
+/// 
+/// For example, in `Option<Vec<String>>`, `Option<...>` is initially parsed by
+/// `into_oval`, however `Vec<...>` and `String` are parsed by this function.
+/// 
+/// In effect, any type A<B<...>> will have A<...> parsed in `into_oval`, and 
+/// `B<...>` parsed in `into_subval`
 fn into_subval(ty: &PathSegment, arg_name: &String) -> proc_macro2::TokenStream {
     let tname = &ty.ident;
     let tstr = &tname.to_string();
