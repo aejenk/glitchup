@@ -1,8 +1,8 @@
 inputfile = "input/cactus.tif"
 outputfile = "output/cactus.tif"
 times = 1
-iterations = [1005]
-chunksize = [50000]
+iterations = [1]
+chunksize = [5000000]
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap

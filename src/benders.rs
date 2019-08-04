@@ -155,7 +155,7 @@ impl KaBender {
         let muts_passed = self.config.mutations.concat();
 
         self.config.iterations = verify_num_option(&self.config.iterations, "iterations", "globally");
-        self.config.chunksize = verify_num_option(&self.config.iterations, "chunksize", "globally");
+        self.config.chunksize = verify_num_option(&self.config.chunksize, "chunksize", "globally");
 
         let void_exists = muts_passed.contains(&String::from("Void"));
         let chaos_exists = muts_passed.contains(&String::from("Chaos"));
