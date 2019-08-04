@@ -15,36 +15,106 @@ use std::collections::HashMap;
 #[derive(Debug, Deserialize, MutConfig)]
 #[allow(unused_attributes)] // pops up a warning for custom attributes apparently.
 pub struct MainConfig {
+    /// The name of the input file.
+    /// Is required.
     #[ignore]
-    inputfile : String, // Input file.
+    inputfile : String,
+
+    /// The name of the output file.
+    /// If not passed, the name of the input file is used.
     #[ignore]
-    outputfile : Option<String>, // Manually setting the output file.
+    outputfile : Option<String>,
+
+    /// The number of times to repeat the program.
+    /// If not passed, the value defaults to 1.
     #[ignore]
     pub times : Option<isize>,
-    iterations: Vec<isize>, // How many iteration every "mutate" does
-    chunksize: Vec<isize>, // A range of chunksizes.
+
+    /// A range of iterations.
+    /// Specifies how many times each mutation is applied.
+    /// A global option to be set for all relevant mutations.
+    iterations: Vec<isize>,
+
+    /// A range of chunksizes.
+    /// Specifies the size of each chunk of *bytes* to mutate.
+    /// A global option to be set for all relevant mutations.
+    chunksize: Vec<isize>,
+
+    /// A list of mutations to be used. 
     #[ignore]
     pub mutations: Vec<Vec<String>>,
-    loop_mut: LoopConfig,
-    increase_mut: IncConfig,
-    gradient_mut: GraConfig
+
+    // Mutation configurations.
+    VoidConfig: Option<VoidConfig>,
+    ChaosConfig: Option<ChaosConfig>,
+    LoopConfig: Option<LoopConfig>,
+    ReverseConfig: Option<ReverseConfig>,
+    ShiftConfig: Option<ShiftConfig>,
+    ShuffleConfig: Option<ShuffleConfig>,
+    SwapConfig: Option<SwapConfig>,
+    IncreaseConfig: Option<IncreaseConfig>,
+    GradientConfig: Option<GradientConfig>
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct VoidConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct ChaosConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
 pub struct LoopConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
     loops: Vec<isize>
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
-pub struct IncConfig {
+pub struct ReverseConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct ShiftConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct ShuffleConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct SwapConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
+}
+
+#[derive(Debug, Deserialize, MutConfig)]
+pub struct IncreaseConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
     increase_by: Vec<isize>
 }
 
 #[derive(Debug, Deserialize, MutConfig)]
-pub struct GraConfig {
+pub struct GradientConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
     accelerate_by: Vec<isize>,
     accelerate_in: Vec<isize> 
 }
+
+
 
 /// A main controller of the databender.
 /// 
