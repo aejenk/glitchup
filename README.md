@@ -1,5 +1,11 @@
 <h1 align="center">glitchup</h1>
 
+<sub align="center">
+A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
+</sub>
+
+<br/>
+
 <div align="center">
   <a href="https://travis-ci.org/Calmynt/glitchup">
     <img src="https://travis-ci.org/Calmynt/glitchup.svg?branch=master" alt="Build Status">
@@ -19,8 +25,8 @@
 [![glitchup](https://img.shields.io/crates/v/glitchup.svg)](https://crates.io/crates/glitchup)
 [![glitchup](https://docs.rs/glitchup/badge.svg)](https://docs.rs/crate/glitchup)
 -->
-A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
 
+## TOC
 - [glitchup](#glitchup)
   - [Some Q&A](#Some-QA)
     - [What's a databender?](#Whats-a-databender)
