@@ -1,8 +1,10 @@
 <h1 align="center">glitchup</h1>
 
-<sub align="center">
+<div align="center">
+<sub>
 A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
 </sub>
+</div>
 
 <br/>
 
