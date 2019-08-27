@@ -1,62 +1,154 @@
-# glitchup
+<h1 align="center">glitchup</h1>
 
+<div align="center">
+<sub>
+A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
+</sub>
+</div>
+
+<br/>
+
+<div align="center">
+  <a href="https://travis-ci.org/Calmynt/glitchup">
+    <img src="https://travis-ci.org/Calmynt/glitchup.svg?branch=master" alt="Build Status">
+  </a> 
+  |
+  <a href="https://crates.io/crates/glitchup">
+    <img src="https://img.shields.io/crates/v/glitchup.svg" alt="Glitchup crate">
+  </a> 
+  |
+   <a href="https://docs.rs/crate/glitchup">
+    <img src="https://docs.rs/glitchup/badge.svg" alt="Glitchup docs">
+  </a>
+</div>
+
+<!--
 [![Build status](https://travis-ci.org/Calmynt/glitchup.svg?branch=master)](https://travis-ci.org/Calmynt/glitchup)
 [![glitchup](https://img.shields.io/crates/v/glitchup.svg)](https://crates.io/crates/glitchup)
 [![glitchup](https://docs.rs/glitchup/badge.svg)](https://docs.rs/crate/glitchup)
+-->
 
-A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
+**Note:** This project is still a work in progress. You can *technically* already run it, however it's not polished up to my liking enough for me to actually release it as **V1** yet.
 
-- [glitchup](#glitchup)
-  - [Some Q&A](#Some-QA)
-    - [What's a databender?](#Whats-a-databender)
-    - [Why library and executable?](#Why-library-and-executable)
-    - [What's in the library?](#Whats-in-the-library)
-    - [Why memory mapping?](#Why-memory-mapping)
-    - [What if I want to make my own Loader or Options?](#What-if-I-want-to-make-my-own-Loader-or-Options)
-    - [So where's the program?](#So-wheres-the-program)
+## Inspiration
 
-## Some Q&A
+There's a practice called [*databending*](https://en.wikipedia.org/wiki/Databending) which I've always found to be a nice fun little hobby of mine. This package is meant to make it easier for people to databend in the way that they want.
 
-### What's a databender?
+I already have a [*databender*](https://github.com/Calmynt/BENDPlusPlus) made in C++, however I wanted to remake it in Rust - partly to learn more about the language, and partly to create a superior program in general. Currently, these are the improvements:
 
-A *databender* is a program that **databends**. So what's databending?
+- *Files are memory mapped rather than loaded into memory.* This leads to much better performance. As an example, if you load an 8GB file and modify 10MB chunks of data at a time, with the old method you'd need to load the whole 8GB file into memory. The new method would only end up using 10MB instead.
+- *The options file is vastly superior.* This databender uses [**TOML**](https://github.com/toml-lang/toml) rather than [**INI**](https://en.wikipedia.org/wiki/INI_file) for the format of its options file. Check the [**options**](#options) section to know more.
+- *Performance has an unbelievable boost.* For now benchmarks were only done locally, however in the future I hope to append some benchmarks to this README.
 
-It consists of modifying parts of a file *(preferrably binary, but it's up to you)*, and seeing what pops up. This has the effect of corrupting, or causing glitch effects to appear - which is something that is not only fun, but can produce some very interesting results.
+## Options
 
-### Why library and executable?
+An example options file can be found at [`Options.toml`](./Options.toml). I'll explain some important parts:
 
-I wanted to split them up because I felt other people should be able to make their own versions with ease. They could contribute to the program here, but if they'd like to make their own local version then I want to make that as easy as possible. This way, if I want my executable to be a CLI tool, and someone wants to make one with a GUI, then they would be able to do so.
+### Input + Output
+The `inputfile` option needs to be set in order to specify which file to databend:
 
-### What's in the library?
+```
+inputfile = "somefile.jpeg"
+```
 
-So far there are three main parts - `loader`, `options`, and `mutation`.
+You can also specify a file that's not in the current directory. A file being in subdirectories (`dir/file.jpeg`) was tested, however a file being out of the current directory (`../file.jpeg`) was not. This may work, however some further testing is currently required.
 
-`mutation` is the simplest. It simply defines a `Mutation` trait.
+By default, the output file will have the same name as the input file *(along with an appended string)*. If you'd like to save the file with a different name/directory, you can specify the `outputfile` option.
 
-`options` provides tools to process options easily. For now, it contains a `TomlProcessor`, which serialises a `TOML` file into your own structs to store the configuration in. It also defines a `MutConfig` trait, used to define configurations that a `Mutation` can use. If you do not want to implement it by yourself, you can use [`#[derive(MutConfig)]`](glitchup_derive), offered by the `glitchup_derive` crate. Be sure to check its `README` and `CHANGELOG` to see how it works, or what updates happened.
+```
+inputfile = "somefile.jpeg"
+outputfile = "otherfile.jpeg"
+```
 
-`loader` facilitates copying files, memory mapping a file for mutation, and reading a file into a string.
+**Note:** The output file's name will not be exactly the same as the name you specified. Currently, the format of the output files name is `name<mutations>.extension`. This is to display what mutations the file underwent, while also avoiding overwriting existing files.
 
-### Why memory mapping?
+### Global options
 
-The current expected mutation should work by copying a file, memory mapping the copy, and then mutating it. This avoids the dual cumbersome process of both `loading` and `saving`, but has the significantly more interesting benefit that there is no memory limitation. 
+Currently there are 4 global options:
 
-If you want to load a `10GB` file, not only are waiting times cut in half, but those `10GB` are not all loaded into memory, only the parts that are being mutated.
+- `times`: This specifies how many times to run the program. 
+- `iterations`: Specifies how many times the mutation should be performed before saving.
+- `chunksize`: The size of each chunk to mutate at a time.
+- `mutations`: The mutations to use.
 
-### What if I want to make my own Loader or Options?
+So with the following options:
 
-Of course, you do not need to use them, you can make your own. I just thought of predefining a structure/design with some tools to help developing. I left them in the library in the case that someone wants to just focus on databending. If you feel they are too limiting, *feel welcome to open an issue!* I'd be happy to look into implementing it. 
+```toml
+times = 2
+iterations = [5]
+chunksize = [1000]
+mutations = [ ["Reverse"], ["Swap"] ]
+```
 
-### So where's the program?
+The program is going to be run **twice**, with each run containing an output for
+- A mutation of `1KB` chunks by applying `Reverse` 5 times, and
+- A mutation of `1KB` chunks by applynig `Swap` 5 times
 
-The current program can be found as `glitchup.exe`. It is quite unrefined, and fair to say is still in its *beta* stage, but it contains support for the following mutation names:
+...resulting in **2 * 2** output files in total. *(Times * No. of Mutations)*
 
-<center> Void, Chaos, Loops, Reverse, Shift, Shuffle, Swap, Increase, Gradient </center>
+#### Ranges
 
-The following mutations are planned, but not finished yet:
+As you've seen above, `iterations` and `chunksize` need to be an `array`. The reasoning behind this is that they can also have *2 values*. In effect, they have two possible kinds of values:
 
-<center> Echo, Anti, Smear, Sort, Magnify, Reflect, Handshake, Speedup, Slowdown </center>
+- `iterations = [x]`: `x` iterations
+- `iterations = [x,y]` : Between `x` and `y` iterations.
 
-Note that you will need the `Options.toml` configuration file for the program to work. There is an example of such in this repository as well.
+A number will be generated randomly between `x` and `y` for each *`time`*. Even if you don't want a range, you just need to specify an array of size 1. This is because of the way the *options* are being loaded by the databender.
 
-You may encounter some **panics**. Some may instruct you to contact me. If a panic doesn't say this message, feel free to ask and I'll try to help out - but if it does, then that means that, _congratulations_ you have found a bug!
+#### Mutations
+
+The `mutations` option has been overhauled from [*BEND++*](https://github.com/Calmynt/BENDPlusPlus)! Now it uses an *array of arrays*
+
+```
+mutations = [
+  ["Reverse", "Swap"],
+  ["Shuffle"],
+  ...
+]
+```
+
+Each element of `mutations` is an *array* and represents a single output. This array can have multiple mutations *chained together!*
+
+In the options shown above, it means that the first file will first be mutated by `Reverse`, then by `Swap`, **then** saved. Then a new copy of the original file will be made, mutated by `Shuffle`, **then** saved. And so on...
+
+### Specific options
+
+Some mutations may have their own options that they require. For example, currently there is a `Loop` mutation that requires an option `loops` to be set. Each mutation has its own configuration as `[<Mutation>Config]`, so to configure `Loop`:
+
+```
+[LoopConfig]
+loops = [10]
+```
+
+This will set `loops` to be `10` for the `Loop` mutation. If you forget to specify this option, the program will specify which options it requires, and under which name.
+
+```
+TODO: Add example of error.
+```
+
+**Note:** In the case above, you only need to specify the `loops` option *if you include `"Loops"` in the `mutations` option!* If you exclude `"loops"` then the part above can be excluded as well.
+
+### Overriding global options
+
+What if, for example, you want `Loop` to have *different* values for `chunksize`? You can override them by simply specifying them under `[LoopConfig]`:
+
+```
+[LoopConfig]
+loops = [10]
+chunksize = [10,1000]
+```
+
+In this case, the `iterations` used will be the global option set, however the `chunksize` used will be taken from `[LoopConfig]`.
+
+## Feedback!
+
+This project is currently a prototype. As a result, any sort of feedback is *heavily* appreciated! If you'd like to contact me, you can use [my email](mctech26@gmail.com), or if you're on the *Fediverse* you can hit me up [there!](https://cybre.space/@calm).
+
+You can also open an issue, and I'll try to respond as fast as possible! Don't worry - any kind of feedback is accepted, be they feature requests, opinions, or criticism.
+
+## TODO
+- Finalize mutations
+- Update structure/formatting of code
+- Improve UX by possibly adding a CLI app.
+- Improve UX by possibly adding a GUI.
+
