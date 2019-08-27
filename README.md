@@ -40,6 +40,10 @@ I already have a [*databender*](https://github.com/Calmynt/BENDPlusPlus) made in
 - *The options file is vastly superior.* This databender uses [**TOML**](https://github.com/toml-lang/toml) rather than [**INI**](https://en.wikipedia.org/wiki/INI_file) for the format of its options file. Check the [**options**](#options) section to know more.
 - *Performance has an unbelievable boost.* For now benchmarks were only done locally, however in the future I hope to append some benchmarks to this README.
 
+## Library?
+
+*TODO*
+
 ## Options
 
 An example options file can be found at [`Options.toml`](./Options.toml). I'll explain some important parts:
