@@ -28,7 +28,7 @@ A databender library/executable made in Rust. Comes with option loading, and pro
 [![glitchup](https://docs.rs/glitchup/badge.svg)](https://docs.rs/crate/glitchup)
 -->
 
-**Note:** This project is still a work in progress. You can *technically* already run it, however it's not polished up to my liking enough for me to actually release it as **V1** yet.
+**Note:** This project is still a work in progress. You can install the current executable by using `cargo install glitchup`, however it's incomplete and you may encounter bugs.
 
 ## Inspiration
 
@@ -51,7 +51,7 @@ An example options file can be found at [`Options.toml`](./Options.toml). I'll e
 ### Input + Output
 The `inputfile` option needs to be set in order to specify which file to databend:
 
-```
+```toml
 inputfile = "somefile.jpeg"
 ```
 
@@ -59,7 +59,7 @@ You can also specify a file that's not in the current directory. A file being in
 
 By default, the output file will have the same name as the input file *(along with an appended string)*. If you'd like to save the file with a different name/directory, you can specify the `outputfile` option.
 
-```
+```toml
 inputfile = "somefile.jpeg"
 outputfile = "otherfile.jpeg"
 ```
@@ -103,7 +103,7 @@ A number will be generated randomly between `x` and `y` for each *`time`*. Even 
 
 The `mutations` option has been overhauled from [*BEND++*](https://github.com/Calmynt/BENDPlusPlus)! Now it uses an *array of arrays*
 
-```
+```toml
 mutations = [
   ["Reverse", "Swap"],
   ["Shuffle"],
@@ -119,7 +119,7 @@ In the options shown above, it means that the first file will first be mutated b
 
 Some mutations may have their own options that they require. For example, currently there is a `Loop` mutation that requires an option `loops` to be set. Each mutation has its own configuration as `[<Mutation>Config]`, so to configure `Loop`:
 
-```
+```toml
 [LoopConfig]
 loops = [10]
 ```
@@ -136,7 +136,7 @@ TODO: Add example of error.
 
 What if, for example, you want `Loop` to have *different* values for `chunksize`? You can override them by simply specifying them under `[LoopConfig]`:
 
-```
+```toml
 [LoopConfig]
 loops = [10]
 chunksize = [10,1000]
