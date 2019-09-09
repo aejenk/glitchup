@@ -2,7 +2,9 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, DeriveInput, Data, Fields, DataStruct, FieldsNamed, punctuated::Punctuated, Field};
+use syn::{parse_macro_input, DeriveInput, Data, Fields,
+          DataStruct, FieldsNamed, punctuated::Punctuated, Field,
+          PathSegment};
 
 /// Derives the `MutConfig` trait for any struct.
 #[proc_macro_derive(MutConfig)]
@@ -18,71 +20,15 @@ pub fn derive(input: TokenStream) -> TokenStream {
 
     let fields = filter_ignore_out(extract_fields(&data));
     let types = extract_types(&data);
-    let generics = extract_generic_types(&data);
-
 
     // generates an appropriate map insertion according to the field
     let insertions = (0..fields.len()).map(|i| {
         let fname = &fields[i].ident;
-        let tyident = &types[i].ident;
-        let ty_gen = &generics[i];
 
-        let tyname = &tyident.to_string();
+        let oval = into_oval(&fields[i], &types[i]);
 
-        // isize, String, and bool are all simple cases
-        if tyname == "isize" {
-            quote! {
-                map.insert(String::from(stringify!(#fname)), OInt(self.#fname.clone()));
-            }
-        } else if tyname == "String" {
-            quote! {
-                map.insert(String::from(stringify!(#fname)), OString(self.#fname.clone()));
-            }
-        } else if tyname == "bool" {
-            quote! {
-                map.insert(String::from(stringify!(#fname)), OBool(self.#fname.clone()));
-            }
-        // if the field type is a vector, it checks the type of the generic
-        // if it's supported, it then converts the Vector into OArray(Vec<MutOptionVal>)
-        } else if tyname == "Vec" {
-            let gen_name = &ty_gen[0].ident.to_string();
-            let enum_name = match gen_name.as_str() {
-                "isize" => quote!{OInt},
-                "String" => quote!{OString},
-                "bool" => quote!{OBool},
-                _ => {
-                    incompatible_type_panic(&tyname);
-                    quote!{}
-                }
-            };
-
-            quote! {
-                map.insert(String::from(stringify!(#fname)), OArray(self.#fname.iter().map(|x| #enum_name(x.clone())).collect()));
-            }
-        // If the field type is an Option, it checks the type of the generic
-        // if it's supported, it then either converts the value into an ONone or its appropriate MutOptionVal
-        } else if tyname == "Option" {
-            let gen_name = &ty_gen[0].ident.to_string();
-            let enum_name = match gen_name.as_str() {
-                "isize" => quote!{OInt},
-                "String" => quote!{OString},
-                "bool" => quote!{OBool},
-                _ => {
-                    incompatible_type_panic(&tyname);
-                    quote!{}
-                }
-            };
-
-            quote! {
-                map.insert(String::from(stringify!(#fname)), self.#fname.clone().map_or(ONone(), |x| #enum_name(x.clone())));
-            }
-        } else if tyname.find("Config").is_some() {
-            quote! {
-                map.insert(String::from(stringify!(#fname)), OMap(self.#fname.to_hashmap()));
-            }
-        } else {
-            incompatible_type_panic(&tyname);
-            quote!{}
+        quote! {
+            map.insert(String::from(stringify!(#fname)), #oval);
         }
     });
 
@@ -226,4 +172,106 @@ fn extract_generic_types(data: &Data) -> Vec<Vec<&syn::PathSegment>> {
 /// To be used by `derive` to avoid repetition.
 fn incompatible_type_panic(tyname: &String) {
     panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\nHint: If you meant to add a struct implementing MutConfig, please name them in the following format: '{0}Config'\nPlease use one of the supported types as shown below:\n {1:#?}",tyname, ["isize", "String", "bool", "Vec<...>", "Option<...>"]);
+}
+
+/// Turns a field into an OVal. Uses the field name and its type.
+fn into_oval(field: &Field, ty: &PathSegment) -> proc_macro2::TokenStream {
+    let fname = &field.ident;
+    let tname = &ty.ident;
+    let tstr  = &tname.to_string();
+
+    if tstr == "isize" {
+        quote! {OInt(self.#fname.clone())}
+    } else if tstr == "String" {
+        quote! {OString(self.#fname.clone())}
+    } else if tstr == "bool" {
+        quote! {OBool(self.#fname.clone())}
+    } else if tstr == "Vec" {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let v = into_subval(&gen, &String::from("a"));
+        quote! {OArray(self.#fname.iter().map(|a| #v).collect())}
+    } else if tstr == "Option" {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let v = into_subval(&gen, &String::from("a"));
+        quote! {self.#fname.clone().map_or(ONone(), |a| #v)}
+    } else if tstr.find("Config").is_some() {
+        quote! {OMap(self.#fname.to_hashmap())}
+    } else {
+        unimplemented!()
+    }
+}
+
+/// Retrieves the first generic of a type.
+/// 
+/// For example: `Result<isize, usize>` -> `isize`.
+fn get_first_generic(ty: &PathSegment) -> &PathSegment {
+    let args =
+        if let syn::PathArguments::AngleBracketed(
+            syn::AngleBracketedGenericArguments {
+                ref args,
+                ..
+            }
+        ) = &ty.arguments {
+            args
+        } else {
+            unimplemented!();
+        };
+
+    let typs : Vec<&PathSegment> = args.iter().map(|a| {
+        if let syn::GenericArgument::Type(syn::Type::Path(
+            syn::TypePath {
+                path : syn::Path {
+                    ref segments,
+                    ..
+                },
+                ..
+            }
+        )) = a {
+            &segments[0]
+        } else {
+            unimplemented!()
+        }
+    }).collect();
+
+    typs[0]
+}
+
+/// Used by `into_oval` to represent nested OValues.
+/// 
+/// For example, in `Option<Vec<String>>`, `Option<...>` is initially parsed by
+/// `into_oval`, however `Vec<...>` and `String` are parsed by this function.
+/// 
+/// In effect, any type A<B<...>> will have A<...> parsed in `into_oval`, and 
+/// `B<...>` parsed in `into_subval`
+fn into_subval(ty: &PathSegment, arg_name: &String) -> proc_macro2::TokenStream {
+    let tname = &ty.ident;
+    let tstr = &tname.to_string();
+
+    let arg = syn::Ident::new(arg_name, tname.span());
+    let new_arg = syn::Ident::new((arg_name.clone() + "a").as_str(), tname.span());
+
+    if tstr == "isize" {
+        quote! {OInt(#arg.clone())}
+    } else if tstr == "String" {
+        quote! {OString(#arg.clone())}
+    } else if tstr == "bool" {
+        quote! {OBool(#arg.clone())}
+    } else if tstr == "Vec" {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let v = into_subval(&gen, &new_arg.to_string());
+        quote! {OArray(#arg.iter().map(|#new_arg| #v).collect())}
+    } else if tstr == "Option" {
+        let gen = get_first_generic(&ty);
+        // let v = into_oVal(&field, &gen);
+        let v = into_subval(&gen, &new_arg.to_string());
+        quote! {#arg.clone().map_or(ONone(), |#new_arg| #v)}
+    } else if tstr.find("Config").is_some() {
+        quote! {OMap(#arg.to_hashmap())}
+    } else {
+        incompatible_type_panic(&tstr);
+        unimplemented!();
+    }
 }

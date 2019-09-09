@@ -2,3 +2,5 @@ target
 **/*.rs.bk
 input
 output
+test_data
+garbage

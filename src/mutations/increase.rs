@@ -9,7 +9,7 @@ use rand::Rng;
 
 #[derive(Default)]
 pub struct Increase {
-    iterations : u64,
+    iterations : usize,
     chunk_size : usize,
     increase_by: usize,
     ranges : Ranges,
@@ -17,7 +17,7 @@ pub struct Increase {
 
 #[derive(Default)]
 struct Ranges {
-    it_range : (u64, u64),
+    it_range : (usize, usize),
     ch_range : (usize, usize),
     ic_range : (usize, usize)
 }
@@ -32,49 +32,35 @@ impl Mutation for Increase {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
-        let mutopts = &config.to_hashmap();
-
-        let incopts = if let Some(OMap(map)) = &mutopts.get("increase_mut") {
-            map
-        } else {
-            panic!("Sub-options for 'Increase' not found. Please add them under '[increase_mut]'")
+        let cfg = &config.to_hashmap();
+        let increasecfg = if let OMap(map) = &cfg["IncreaseConfig"] {map} else {
+            println!("not configuring INCREASE - not included.");
+            return;
         };
 
         // Sets the Iterations range
-        if let OArray(range) = &mutopts["iterations"] {
+        if let OArray(range) = &increasecfg["iterations"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as u64, *max as u64);
+                self.ranges.it_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'iterations\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'iterations\' (Vec) is a required option. Please set it globally.");
-        }
-
-        // Sets the Increase range
-        if let OArray(range) = &incopts["increase_by"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ic_range = (*min as usize, *max as usize);
-            }
-            else {
-                panic!("\'increase_by\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'increase_by\' (Vec) is a required option. Please set it under '[increase_mut]'.");
-        }
+            else {panic!("ITERS not [INT,INT]")}
+        } else {panic!("ITERS not ARR")};
 
         // Sets the Chunksize range
-        if let OArray(range) = &mutopts["chunksize"] {
+        if let OArray(range) = &increasecfg["chunksize"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
                 self.ranges.ch_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'chunksize\' should be a list of numbers.");
+            else {panic!("CHUNKSIZE not [INT,INT]")}
+        } else {panic!("CHUNKSIZE not ARR")};
+
+        // Sets the Chunksize range
+        if let OArray(range) = &increasecfg["increase_by"] {
+            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
+                self.ranges.ic_range = (*min as usize, *max as usize);
             }
-        } else {
-            panic!("\'chunksize\' (Vec) is a required option. Please set it globally.");
-        }
+            else {panic!("INCREASEBY not [INT,INT]")}
+        } else {panic!("INCREASEBY not ARR")};
     }
 
     fn mutate(&mut self, data: &mut [u8]) {
