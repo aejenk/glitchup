@@ -28,7 +28,12 @@ A databender library/executable made in Rust. Comes with option loading, and pro
 [![glitchup](https://docs.rs/glitchup/badge.svg)](https://docs.rs/crate/glitchup)
 -->
 
-**Note:** This project is still a work in progress. You can install the current executable by using `cargo install glitchup`, however it's incomplete and you may encounter bugs.
+**Note:** This project is still a work in progress. You can install the current executable by using: 
+
+- `cargo install glitchup`
+- downloading the program from [here](https://github.com/Calmynt/glitchup/releases)
+
+...however it's incomplete and you may encounter bugs.
 
 ## Inspiration
 
