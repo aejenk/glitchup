@@ -1,24 +1,27 @@
-inputfile = "input/giygas.avi"
-outputfile = "output/g.avi"
+inputfile = "test_data/random.txt"
+outputfile = "garbage/gltch.txt"
 times = 5
-iterations = [1, 11]
-chunksize = [5_000_000, 100_000_000]
+iterations = [1000]
+chunksize = [1000]
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
 # Increase, Gradient
 mutations = [
-    ["Loops", "Reverse", "Swap", "Increase", "Gradient"],
-    ["Shuffle", "Chaos"],
-    ["Shift"]
+    ["Void", "Void"],
+    ["Void", "Void"],
 ]
 
-[loop_mut]
-loops = [1,1000]
+[LoopConfig]
+loops = [10]
 
-[increase_mut]
+[IncreaseConfig]
 increase_by = [1,255]
 
-[gradient_mut]
+[GradientConfig]
 accelerate_by = [1,2]
 accelerate_in = [100_000, 5_000_000]
+
+[ShiftConfig]
+iterations = [10]
+chunksize = [5000]

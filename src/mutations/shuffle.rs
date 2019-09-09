@@ -10,14 +10,14 @@ use rand::seq::SliceRandom;
 
 #[derive(Default)]
 pub struct Shuffle {
-    iterations : u64,
+    iterations : usize,
     chunk_size : usize,
     ranges : Ranges,
 }
 
 #[derive(Default)]
 struct Ranges {
-    it_range : (u64, u64),
+    it_range : (usize, usize),
     ch_range : (usize, usize),
 }
 
@@ -31,31 +31,27 @@ impl Mutation for Shuffle {
     fn configure(&mut self, config: Box<&dyn MutConfig>) {
         use glitchconsole::options::MutOptionVal::*;
 
-        let mutopts = &config.to_hashmap();
+        let cfg = &config.to_hashmap();
+        let shufflecfg = if let OMap(map) = &cfg["ShuffleConfig"] {map} else {
+            println!("not configuring SHUFFLE - not included.");
+            return;
+        };
 
         // Sets the Iterations range
-        if let OArray(range) = &mutopts["iterations"] {
+        if let OArray(range) = &shufflecfg["iterations"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as u64, *max as u64);
+                self.ranges.it_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'iterations\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'iterations\' (Vec) is a required option. Please set it globally.");
-        }
+            else {panic!("ITERS not [INT,INT]")}
+        } else {panic!("ITERS not ARR")};
 
         // Sets the Chunksize range
-        if let OArray(range) = &mutopts["chunksize"] {
+        if let OArray(range) = &shufflecfg["chunksize"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
                 self.ranges.ch_range = (*min as usize, *max as usize);
             }
-            else {
-                panic!("\'chunksize\' should be a list of numbers.");
-            }
-        } else {
-            panic!("\'chunksize\' (Vec) is a required option. Please set it globally.");
-        }
+            else {panic!("CHUNKSIZE not [INT,INT]")}
+        } else {panic!("CHUNKSIZE not ARR")};
     }
 
     fn mutate(&mut self, data: &mut [u8]) {
