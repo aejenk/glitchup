@@ -19,7 +19,7 @@ I wanted to databend on a larger scale, with enough customizeability and methods
 At some point I considered `BEND++` finished - and stopped working on it for a while. However after some time I started learning Rust, and decided to remake it - partly to learn more about the language, and partly to try and improve upon `BEND++`, now that I had more experience with making databenders. Currently, these are the improvements:
 
 - *Files are memory mapped rather than loaded into memory.* This leads to much better performance. As an example, if you load an 8GB file and modify 10MB chunks of data at a time, with the old method you'd need to load the whole 8GB file into memory. The new method would only end up using 10MB instead.
-- *The options file is vastly superior.* This databender uses [**TOML**](https://github.com/toml-lang/toml) rather than [**INI**](https://en.wikipedia.org/wiki/INI_file) for the format of its options file. Check the [**options**](../README.md#options) section in the README to know more.
+- *The options file is vastly superior.* This databender uses [**TOML**](https://github.com/toml-lang/toml) rather than [**INI**](https://en.wikipedia.org/wiki/INI_file) for the format of its options file. Check the [**options**](https://github.com/Calmynt/glitchup/blob/master/README.md#options) section in the README to know more.
 - *Performance has an unbelievable boost.* Currently I'm only basing this off of personal experience, but at some point I hope to provide some minor benchmarks.
 
 ## What's this about a library?
