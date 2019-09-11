@@ -35,19 +35,7 @@ A databender library/executable made in Rust. Comes with option loading, and pro
 
 ...however it's incomplete and you may encounter bugs.
 
-## Inspiration
-
-There's a practice called [*databending*](https://en.wikipedia.org/wiki/Databending) which I've always found to be a nice fun little hobby of mine. This package is meant to make it easier for people to databend in the way that they want.
-
-I already have a [*databender*](https://github.com/Calmynt/BENDPlusPlus) made in C++, however I wanted to remake it in Rust - partly to learn more about the language, and partly to create a superior program in general. Currently, these are the improvements:
-
-- *Files are memory mapped rather than loaded into memory.* This leads to much better performance. As an example, if you load an 8GB file and modify 10MB chunks of data at a time, with the old method you'd need to load the whole 8GB file into memory. The new method would only end up using 10MB instead.
-- *The options file is vastly superior.* This databender uses [**TOML**](https://github.com/toml-lang/toml) rather than [**INI**](https://en.wikipedia.org/wiki/INI_file) for the format of its options file. Check the [**options**](#options) section to know more.
-- *Performance has an unbelievable boost.* For now benchmarks were only done locally, however in the future I hope to append some benchmarks to this README.
-
-## Library?
-
-*TODO*
+If you have any questions, for example *"What's databending?"* or *"Why did you make this?"*, check the [**Q&A**](./Q&A.md)
 
 ## Options
 
