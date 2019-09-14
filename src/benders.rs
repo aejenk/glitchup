@@ -510,7 +510,7 @@ impl KaBender {
     /// Setup the internal mutations for the Bender.
     /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
     fn setup_mutations(&mut self) -> &mut Self {
-        fn generate_map(muts: Vec<(&'static str, Box<dyn Mutation + Send + Sync>)>) -> HashMap<String, Box<dyn Mutation + Send + Sync>> {
+        fn generate_map(muts: Vec<(&'static str, Mut)>) -> HashMap<String, Mut> {
             muts.into_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
         }
 
