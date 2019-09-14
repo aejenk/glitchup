@@ -10,14 +10,14 @@ use rand_xorshift::XorShiftRng;
 use rand_core::SeedableRng;
 use rand_core::RngCore;
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Chaos {
     iterations : usize,
     chunk_size : usize,
     ranges : Ranges,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 struct Ranges {
     it_range : (usize, usize),
     ch_range : (usize, usize),
