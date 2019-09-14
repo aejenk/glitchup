@@ -15,6 +15,8 @@ use super::mutations::{
 
 use std::collections::HashMap;
 
+use rayon::prelude::*;
+
 /// The main configuration of the bender.
 /// 
 /// Represents the entire TOML options file.
@@ -130,8 +132,7 @@ pub struct KaBender {
     outdir: String,
     extension: String,
     output: String,
-    filelist: Vec<MmapMut>,
-    mutmap: HashMap<String, Box<dyn Mutation>>,
+    mutmap: HashMap<String, Box<dyn Mutation + Send + Sync>>,
     pub config: MainConfig,
 }
 
@@ -144,7 +145,6 @@ impl KaBender {
             extension : String::new(),
             output : String::new(),
             outdir : String::new(),
-            filelist: Vec::new(),
             mutmap: HashMap::new(),
         };
 
@@ -159,23 +159,34 @@ impl KaBender {
     pub fn run(mut self) {
         let num_mutations = self.config.mutations.len();
 
-        // Perform mutation respective with each memory map.
-        (0..num_mutations)
-            .for_each(move |i| {
-                let mut log = Vec::new();
-                self.init_file(i);
-                let current_mutation_combo = self.config.mutations.get(i).unwrap().iter().map(|mut_str| {
+        let mut mutations : Vec<Vec<Box<dyn Mutation + Send + Sync>>> = Vec::new();
+
+        let mut filelist : Vec<MmapMut> = Vec::new();
+
+        for i in 0..num_mutations {
+            self.init_file(i, &mut filelist);
+            mutations = self.config.mutations.iter().map(|combo| {
+                combo.iter().map(|mut_str| {
                     self.mutmap.get(mut_str).cloned().unwrap()
-                }).collect::<Vec<Box<dyn Mutation>>>();
+                }).collect()
+            }).collect();
+        }
 
-                let mut current_map = self.filelist.get_mut(i).unwrap();
+        let mut mut_map : Vec<(Vec<Box<dyn Mutation + Send + Sync>>, MmapMut)> =
+            mutations.into_iter().zip(filelist.into_iter()).collect();
 
-                for mut mutation in current_mutation_combo {
-                    mutation.mutate(&mut current_map);
+        mut_map
+            .par_iter_mut()
+            .enumerate()
+            .for_each(|(index, (mutation_combo, map))| {
+                let mut log = Vec::new();
+
+                for mutation in mutation_combo {
+                    mutation.mutate(map);
                     log.push(mutation.to_string());
                 }
 
-                self.flush(i, log);
+                self.flush(index, log);
             });
     }
 
@@ -441,7 +452,7 @@ impl KaBender {
     /// Also initialises the filenames and extensions.
     /// 
     /// * `iter` - The iteration. Used to *mark* a temporarily file by its iteration for renaming.
-    fn init_file(&mut self, iter: usize) -> &mut Self {
+    fn init_file(&mut self, iter: usize, filelist: &mut Vec<MmapMut>) -> &mut Self {
         use std::path::Path;
         use std::ffi::OsStr;
 
@@ -481,7 +492,7 @@ impl KaBender {
         );
 
         // Memory maps the temporary output file.
-        self.filelist.push(Loader::init_file_mut(
+        filelist.push(Loader::init_file_mut(
             input,
             format!("{}temp{}.{}", self.outdir, iter, self.extension).as_str()
         ).unwrap());
@@ -493,7 +504,7 @@ impl KaBender {
     /// Setup the internal mutations for the Bender.
     /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
     fn setup_mutations(&mut self) -> &mut Self {
-        fn generate_map(muts: Vec<(&'static str, Box<dyn Mutation>)>) -> HashMap<String, Box<dyn Mutation>> {
+        fn generate_map(muts: Vec<(&'static str, Box<dyn Mutation + Send + Sync>)>) -> HashMap<String, Box<dyn Mutation + Send + Sync>> {
             muts.into_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
         }
 
@@ -525,7 +536,7 @@ impl KaBender {
     /// 
     /// * `iter` - The iteration. Used to rename the right mutated file.
     /// * `log` - The log of mutations applied to the file. Used to embed mutation data into the filename itself.
-    fn flush(&mut self, iter: usize, log: Vec<String>){
+    fn flush(&self, iter: usize, log: Vec<String>){
         let mut temp_muts = log.join("---");
         if temp_muts.len() > 200 {
             temp_muts.truncate(200);

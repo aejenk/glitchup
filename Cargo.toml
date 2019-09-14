@@ -26,5 +26,6 @@ serde = {version = "1.0.97", features = ["derive"]}
 glitchup_derive = "0.3.0"
 # glitchup_derive = {path = "glitchup_derive"}
 rand_xorshift = "0.2"
+rayon = "1.2.0"
 rand_core = "0.5"
 moveslice = "2.0.1"
