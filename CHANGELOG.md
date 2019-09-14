@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## _[Unreleased]_
 
-_nothing new to show for… yet!_
+- refactor: prepared code for parallellism ([`2d35df0`])
 
 ## [0.3.0] – _The Alpha_
 
@@ -55,4 +55,5 @@ greatly appreciated by the community. 💖
 
 <!-- [commits] -->
 
+[`2d35df0`]: #/commit/2d35df041fab8e390453661a45d2864d68cba561
 [`d821fce`]: #/commit/d821fcefd5074a6286d3e43a0ed7ed4075f2308d
