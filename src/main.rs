@@ -4,6 +4,8 @@
 mod benders;
 use benders::KaBender;
 
+use rayon::prelude::*;
+
 mod mutations;
 
 fn main() {
@@ -13,7 +15,7 @@ fn main() {
     // Retrieves some options from the configuration.
     let loops = bender.config.times.clone().unwrap_or(1);
 
-    (0..loops).for_each(|_| {
+    (0..loops).into_par_iter().for_each(|_| {
         let bender = KaBender::new("Options.toml");
         bender.run();
     });
