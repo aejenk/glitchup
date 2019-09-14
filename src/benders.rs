@@ -135,7 +135,7 @@ pub struct KaBender {
     outdir: String,
     extension: String,
     output: String,
-    mutmap: HashMap<String, Box<dyn Mutation + Send + Sync>>,
+    mutmap: HashMap<String, Mut>,
     pub config: MainConfig,
 }
 
