@@ -17,6 +17,9 @@ use std::collections::HashMap;
 
 use rayon::prelude::*;
 
+type Mut = Box<dyn Mutation + Send + Sync>;
+type Muts = Vec<Mut>;
+
 /// The main configuration of the bender.
 /// 
 /// Represents the entire TOML options file.
@@ -159,7 +162,7 @@ impl KaBender {
     pub fn run(mut self) {
         let num_mutations = self.config.mutations.len();
 
-        let mut mutations : Vec<Vec<Box<dyn Mutation + Send + Sync>>> = Vec::new();
+        let mut mutations : Vec<Muts> = Vec::new();
 
         let mut filelist : Vec<MmapMut> = Vec::new();
 
@@ -172,8 +175,11 @@ impl KaBender {
             }).collect();
         }
 
-        let mut mut_map : Vec<(Vec<Box<dyn Mutation + Send + Sync>>, MmapMut)> =
-            mutations.into_iter().zip(filelist.into_iter()).collect();
+        let mut mut_map : Vec<(Muts, MmapMut)> = mutations
+            .into_iter()
+            .zip(filelist
+                .into_iter())
+            .collect();
 
         mut_map
             .par_iter_mut()
