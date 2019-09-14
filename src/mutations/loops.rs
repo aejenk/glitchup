@@ -7,7 +7,7 @@ use std::fmt::{Display, Formatter, Error};
 
 use rand::Rng;
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Loops {
     iterations : usize,
     chunk_size : usize,
@@ -15,7 +15,7 @@ pub struct Loops {
     ranges : Ranges,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 struct Ranges {
     it_range : (usize, usize),
     lp_range : (usize, usize),

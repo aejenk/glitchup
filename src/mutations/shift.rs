@@ -9,14 +9,14 @@ use moveslice::Moveslice;
 
 use rand::Rng;
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 pub struct Shift {
     iterations : usize,
     chunk_size : usize,
     ranges : Ranges,
 }
 
-#[derive(Default)]
+#[derive(Default, Debug, Clone)]
 struct Ranges {
     it_range : (usize, usize),
     ch_range : (usize, usize),
