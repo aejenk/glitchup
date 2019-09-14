@@ -7,6 +7,12 @@ use glitchup_derive::MutConfig;
 use serde::Deserialize;
 use memmap::MmapMut;
 
+use super::mutations::{
+    void::Void, chaos::Chaos, loops::Loops, reverse::Reverse,
+    shift::Shift, shuffle::Shuffle, swap::Swap,
+    increase::Increase, gradient::Gradient
+};
+
 use std::collections::HashMap;
 
 /// The main configuration of the bender.
@@ -124,9 +130,9 @@ pub struct KaBender {
     outdir: String,
     extension: String,
     output: String,
-    data: MmapMut,
+    filelist: Vec<MmapMut>,
+    mutmap: HashMap<String, Box<dyn Mutation>>,
     pub config: MainConfig,
-    log: Vec<String>
 }
 
 impl KaBender {
@@ -138,19 +144,47 @@ impl KaBender {
             extension : String::new(),
             output : String::new(),
             outdir : String::new(),
-            data : MmapMut::map_anon(1).unwrap(),
-            log : Vec::new(),
+            filelist: Vec::new(),
+            mutmap: HashMap::new(),
         };
 
         new.setup_config();
-        new.init_file();
+        new.setup_mutations();
         new
+    }
+
+    /// Executes the bender.
+    /// 
+    /// Performs all mutation combinations using the configuration loaded.
+    pub fn run(mut self) {
+        let num_mutations = self.config.mutations.len();
+
+        // Perform mutation respective with each memory map.
+        (0..num_mutations)
+            .for_each(move |i| {
+                let mut log = Vec::new();
+                self.init_file(i);
+                let current_mutation_combo = self.config.mutations.get(i).unwrap().iter().map(|mut_str| {
+                    self.mutmap.get(mut_str).cloned().unwrap()
+                }).collect::<Vec<Box<dyn Mutation>>>();
+
+                let mut current_map = self.filelist.get_mut(i).unwrap();
+
+                for mut mutation in current_mutation_combo {
+                    mutation.mutate(&mut current_map);
+                    log.push(mutation.to_string());
+                }
+
+                self.flush(i, log);
+            });
     }
 
     /// Sets up the configurations.
     /// 
     /// Is a huge function due to multiple repeated boilerplate code.
     /// In the future, there might be macros etc. to improve the style.
+    /// 
+    /// To add your own mutation, you would need to set up its configuration in this function.
     fn setup_config(&mut self) {
         let muts_passed = self.config.mutations.concat();
 
@@ -405,7 +439,9 @@ impl KaBender {
     /// 
     /// Copies the input file to a temporary file, and memory maps the copy.
     /// Also initialises the filenames and extensions.
-    fn init_file(&mut self) -> &mut Self {
+    /// 
+    /// * `iter` - The iteration. Used to *mark* a temporarily file by its iteration for renaming.
+    fn init_file(&mut self, iter: usize) -> &mut Self {
         use std::path::Path;
         use std::ffi::OsStr;
 
@@ -445,64 +481,52 @@ impl KaBender {
         );
 
         // Memory maps the temporary output file.
-        self.data = Loader::init_file_mut(
+        self.filelist.push(Loader::init_file_mut(
             input,
-            format!("{}temp.{}", self.outdir, self.extension).as_str()
-        ).unwrap();
+            format!("{}temp{}.{}", self.outdir, iter, self.extension).as_str()
+        ).unwrap());
 
         self
     }
 
-    /// Configures the mutation passed with the Bender's configuration.
-    pub fn configure_mutation(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
-        mutation.configure(Box::new(&self.config));
-        self
-    }
 
-    /// Performs the mutation.
-    /// 
-    /// Also adds the mutation to the log.
-    pub fn mutate_with(&mut self, mutation: &mut Box<dyn Mutation>) -> &mut Self {
-        mutation.mutate(self.data.as_mut());
-        self.log.push(mutation.to_string());
-        self
-    }
+    /// Setup the internal mutations for the Bender.
+    /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
+    fn setup_mutations(&mut self) -> &mut Self {
+        fn generate_map(muts: Vec<(&'static str, Box<dyn Mutation>)>) -> HashMap<String, Box<dyn Mutation>> {
+            muts.into_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
+        }
 
-    /// Restarts the bender.
-    /// 
-    /// "Saves" the temporary file, and resets back to the original input file.
-    /// Used to have multiple kinds of seperate mutations in one execution.
-    /// 
-    /// To chain mutations:
-    /// ```
-    /// .mutate(...)
-    /// .mutate(...)
-    /// ...
-    /// ```
-    /// 
-    /// To save each mutation to a different file:
-    /// ```
-    /// .mutate(...)
-    /// .restart()
-    /// .mutate(...)
-    /// .restart()
-    /// ```
-    pub fn restart(&mut self) -> &mut Self {
-        // "Saves" file
-        self.flush();
+        let mutmap = generate_map(vec![
+            ("Void"     , Box::new(Void::default())),
+            ("Chaos"    , Box::new(Chaos::default())),
+            ("Loops"    , Box::new(Loops::default())),
+            ("Reverse"  , Box::new(Reverse::default())),
+            ("Shift"    , Box::new(Shift::default())),
+            ("Shuffle"  , Box::new(Shuffle::default())),
+            ("Swap"     , Box::new(Swap::default())),
+            ("Increase" , Box::new(Increase::default())),
+            ("Gradient" , Box::new(Gradient::default())),
+        ]);
 
-        // Memory maps another copy of the file
-        self.init_file();
-
-        // Resets the log
-        self.log = Vec::new();
+        self.mutmap = mutmap
+            .into_iter()
+            .map(|mut mutation| {
+                mutation.1.configure(Box::new(&self.config));
+                mutation
+            })
+            .collect();
+        
 
         self
     }
 
-    /// "Saves" the file by renaming it from `temp.rs` to a generated output name.
-    pub fn flush(&mut self){
-        let mut temp_muts = self.log.join("---");
+    /// Renames the temporary file that was mutated to its supposed output file.
+    /// 
+    /// * `iter` - The iteration. Used to rename the right mutated file.
+    /// * `log` - The log of mutations applied to the file. Used to embed mutation data into the filename itself.
+    fn flush(&mut self, iter: usize, log: Vec<String>){
+        let mut temp_muts = log.join("---");
         if temp_muts.len() > 200 {
             temp_muts.truncate(200);
             println!("Truncating mutation name due to length...");
@@ -517,11 +541,11 @@ impl KaBender {
 
         println!("Renaming temporary file to {}", genoutput);
 
-        println!("{}temp.{}", self.outdir, self.extension);
+        println!("{}temp{}.{}", self.outdir, iter, self.extension);
 
         // Renames temporary file to actual output name
         Loader::rename_file(
-            format!("{}temp.{}", self.outdir, self.extension).as_str(),
+            format!("{}temp{}.{}", self.outdir, iter, self.extension).as_str(),
             genoutput.as_str()
         ).unwrap();
     }
