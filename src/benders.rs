@@ -132,6 +132,7 @@ pub struct GradientConfig {
 /// Manages the file handling, data storage, and controls mutations.
 #[derive(Debug)]
 pub struct KaBender {
+    pub seed: String,
     outdir: String,
     extension: String,
     output: String,
@@ -141,9 +142,10 @@ pub struct KaBender {
 
 impl KaBender {
     /// Creates a new KaBender from the configuration.
-    pub fn new(config_filename: &str) -> Self {
+    pub fn new(config_filename: &str, seed: String) -> Self {
         println!("Initialising bender...");
         let mut new = KaBender {
+            seed: seed,
             config : TomlProcessor::parse_toml_as_options(config_filename).unwrap(),
             extension : String::new(),
             output : String::new(),
@@ -462,7 +464,7 @@ impl KaBender {
             .map(|index| {
                 Loader::init_file_mut(
                     &self.config.inputfile.clone(),
-                    format!("{}temp{}.{}", self.outdir, index, self.extension).as_str()
+                    format!("{}temp{}SEED={}.{}", self.outdir, index, self.seed, self.extension).as_str()
                 ).unwrap()
             }).collect()
     }
@@ -555,11 +557,11 @@ impl KaBender {
 
         println!("Renaming temporary file to {}", genoutput);
 
-        println!("{}temp{}.{}", self.outdir, iter, self.extension);
+        println!("{}temp{}SEED={}.{}", self.outdir, iter, self.seed, self.extension);
 
         // Renames temporary file to actual output name
         Loader::rename_file(
-            format!("{}temp{}.{}", self.outdir, iter, self.extension).as_str(),
+            format!("{}temp{}SEED={}.{}", self.outdir, iter, self.seed, self.extension).as_str(),
             genoutput.as_str()
         ).unwrap();
     }
