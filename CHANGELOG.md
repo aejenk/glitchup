@@ -16,7 +16,11 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## _[Unreleased]_
 
-- refactor: prepared code for parallellism ([`2d35df0`])
+- chore: remove unnecessary benchmark file ([`ba673c3`])
+- perf: improved some inefficiencies ([`e5292f0`])
+- refactor: updated type aliases ([`4a80008`])
+- refactor: added some type aliases ([`2770066`])
+- feat: (unfortunately) made parallellism work ([`cfbac5f`])
 
 ## [0.3.0] – _The Alpha_
 
@@ -55,5 +59,9 @@ greatly appreciated by the community. 💖
 
 <!-- [commits] -->
 
-[`2d35df0`]: #/commit/2d35df041fab8e390453661a45d2864d68cba561
+[`ba673c3`]: #/commit/ba673c3e70477759a7cbbc9ffcea5a3e55191065
+[`e5292f0`]: #/commit/e5292f0647b2c6233a4a28fb1fa039f4cd588142
+[`4a80008`]: #/commit/4a800089169bd2e443463bd0a11daec20f1a2b62
+[`2770066`]: #/commit/2770066b6222724eb171c0d7c47e8b83d2d6aa7b
+[`cfbac5f`]: #/commit/cfbac5fd0d64908d898032902201bbee68fecd4b
 [`d821fce`]: #/commit/d821fcefd5074a6286d3e43a0ed7ed4075f2308d

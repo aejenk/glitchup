@@ -3,7 +3,7 @@ inputfile = "test.rs"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "die.rs"
+outputfile = "output/die.rs"
 
 # How many times to execute the application
 times = 1
@@ -12,17 +12,17 @@ times = 1
 iterations = [1000]
 
 # Size of each chunk to mutate at a time
-chunksize = [100]
+chunksize = [1000]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
 # Increase, Gradient
 mutations = [
-    ["Void", "Chaos"],
-    ["Void", "Chaos", "Void"],
-    ["Void", "Void"],
-    ["Reverse"]
+    ["Chaos", "Chaos", "Chaos", "Chaos"],
+    ["Void" , "Void" , "Void" , "Void"],
+    ["Increase","Increase","Increase","Increase"],
+    ["Gradient","Gradient","Gradient","Gradient"]
 ]
 
 # Additional options for special mutations.

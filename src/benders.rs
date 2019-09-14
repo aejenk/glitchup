@@ -15,6 +15,11 @@ use super::mutations::{
 
 use std::collections::HashMap;
 
+use rayon::prelude::*;
+
+type Mut = Box<dyn Mutation + Send + Sync>;
+type Muts = Vec<Mut>;
+
 /// The main configuration of the bender.
 /// 
 /// Represents the entire TOML options file.
@@ -130,8 +135,7 @@ pub struct KaBender {
     outdir: String,
     extension: String,
     output: String,
-    filelist: Vec<MmapMut>,
-    mutmap: HashMap<String, Box<dyn Mutation>>,
+    mutmap: HashMap<String, Mut>,
     pub config: MainConfig,
 }
 
@@ -144,12 +148,12 @@ impl KaBender {
             extension : String::new(),
             output : String::new(),
             outdir : String::new(),
-            filelist: Vec::new(),
             mutmap: HashMap::new(),
         };
 
         new.setup_config();
         new.setup_mutations();
+        new.setup_file_data();
         new
     }
 
@@ -157,25 +161,36 @@ impl KaBender {
     /// 
     /// Performs all mutation combinations using the configuration loaded.
     pub fn run(mut self) {
-        let num_mutations = self.config.mutations.len();
+        // Generates a file for each list of mutations
+        let filelist : Vec<MmapMut> = self.init_file_n(self.config.mutations.len());
 
-        // Perform mutation respective with each memory map.
-        (0..num_mutations)
-            .for_each(move |i| {
+        // Retrieves all mutations from hashmap using the file.
+        let mutations : Vec<Muts> = self.config.mutations.iter().map(|combo| {
+            combo.iter().map(|mut_str| {
+                self.mutmap.get(mut_str).cloned().unwrap()
+            }).collect()
+        }).collect();
+
+        // Pairs each memory-mapped file to a list of mutations.
+        let mut mut_map : Vec<(Muts, MmapMut)> = mutations
+            .into_iter()
+            .zip(filelist
+                .into_iter())
+            .collect();
+
+        // Performs the mutations in parallel
+        mut_map
+            .par_iter_mut()
+            .enumerate()
+            .for_each(|(index, (mutation_combo, map))| {
                 let mut log = Vec::new();
-                self.init_file(i);
-                let current_mutation_combo = self.config.mutations.get(i).unwrap().iter().map(|mut_str| {
-                    self.mutmap.get(mut_str).cloned().unwrap()
-                }).collect::<Vec<Box<dyn Mutation>>>();
 
-                let mut current_map = self.filelist.get_mut(i).unwrap();
-
-                for mut mutation in current_mutation_combo {
-                    mutation.mutate(&mut current_map);
+                for mutation in mutation_combo {
+                    mutation.mutate(map);
                     log.push(mutation.to_string());
                 }
 
-                self.flush(i, log);
+                self.flush(index, log);
             });
     }
 
@@ -435,17 +450,27 @@ impl KaBender {
         }
     }
 
-    /// Initialises the file.
+    /// Initialises multiple memory mapped copies of a file.
     /// 
-    /// Copies the input file to a temporary file, and memory maps the copy.
-    /// Also initialises the filenames and extensions.
-    /// 
-    /// * `iter` - The iteration. Used to *mark* a temporarily file by its iteration for renaming.
-    fn init_file(&mut self, iter: usize) -> &mut Self {
-        use std::path::Path;
-        use std::ffi::OsStr;
+    /// * `n` - Number of files to initialize
+    fn init_file_n(&mut self, n: usize) -> Vec<MmapMut> {
 
         println!("Initialising file...");
+
+        (0..n)
+            .into_par_iter()
+            .map(|index| {
+                Loader::init_file_mut(
+                    &self.config.inputfile.clone(),
+                    format!("{}temp{}.{}", self.outdir, index, self.extension).as_str()
+                ).unwrap()
+            }).collect()
+    }
+
+    /// Sets up the data of the file, such as the input, output, extension, and path.
+    fn setup_file_data(&mut self) {
+        use std::path::Path;
+        use std::ffi::OsStr;
 
         let input = &self.config.inputfile.clone();
 
@@ -479,21 +504,13 @@ impl KaBender {
             self.outdir,
             path.file_stem().and_then(OsStr::to_str).unwrap().clone(),
         );
-
-        // Memory maps the temporary output file.
-        self.filelist.push(Loader::init_file_mut(
-            input,
-            format!("{}temp{}.{}", self.outdir, iter, self.extension).as_str()
-        ).unwrap());
-
-        self
     }
 
 
     /// Setup the internal mutations for the Bender.
     /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
-    fn setup_mutations(&mut self) -> &mut Self {
-        fn generate_map(muts: Vec<(&'static str, Box<dyn Mutation>)>) -> HashMap<String, Box<dyn Mutation>> {
+    fn setup_mutations(&mut self) {
+        fn generate_map(muts: Vec<(&'static str, Mut)>) -> HashMap<String, Mut> {
             muts.into_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
         }
 
@@ -516,16 +533,13 @@ impl KaBender {
                 mutation
             })
             .collect();
-        
-
-        self
     }
 
     /// Renames the temporary file that was mutated to its supposed output file.
     /// 
     /// * `iter` - The iteration. Used to rename the right mutated file.
     /// * `log` - The log of mutations applied to the file. Used to embed mutation data into the filename itself.
-    fn flush(&mut self, iter: usize, log: Vec<String>){
+    fn flush(&self, iter: usize, log: Vec<String>){
         let mut temp_muts = log.join("---");
         if temp_muts.len() > 200 {
             temp_muts.truncate(200);
