@@ -12,15 +12,45 @@ The format is based on [Keep a Changelog], and this project adheres to
 ## Overview
 
 - [unreleased](#unreleased)
+- [`0.4.0`](#040) – _2019.09.14_
 - [`0.3.0`](#030) – _2019.09.09_
 
 ## _[Unreleased]_
 
-- chore: remove unnecessary benchmark file ([`ba673c3`])
-- perf: improved some inefficiencies ([`e5292f0`])
-- refactor: updated type aliases ([`4a80008`])
-- refactor: added some type aliases ([`2770066`])
-- feat: (unfortunately) made parallellism work ([`cfbac5f`])
+_nothing new to show for… yet!_
+
+## [0.4.0] – _Working in Parallel_
+
+_2019.09.14_
+This release contains a major upgrade in performance, due to having
+implemented partial parallellism. Now, every list of mutations is run in
+parallel, which leads to large gains in speed.
+
+To note: the `mutations` option is a LIST of LISTS. Only the top-level
+list has been parallellised; only *iterations* are run in parallel,
+actual *mutations* are run in serial.
+
+The improvement in speed has been around 36% (4 lists) to 61% (4 lists +
+100 loops)
+
+
+### Contributions
+
+This release is made possible by the following people (in alphabetical order).
+Thank you all for your contributions. Your work – no matter how significant – is
+greatly appreciated by the community. 💖
+
+- Calmynt (<mctech26@gmail.com>)
+
+### Changes
+
+#### Bug Fixes
+
+- **added seed to bender to help conflicts** ([`8a05010`])
+
+#### Documentation
+
+- **updated readme and q&a** ([`4c2908d`])
 
 ## [0.3.0] – _The Alpha_
 
@@ -54,14 +84,12 @@ greatly appreciated by the community. 💖
 
 <!-- [releases] -->
 
-[unreleased]: #/compare/v0.3.0...HEAD
+[unreleased]: #/compare/v0.4.0...HEAD
+[0.4.0]: #/releases/tag/v0.4.0
 [0.3.0]: #/releases/tag/v0.3.0
 
 <!-- [commits] -->
 
-[`ba673c3`]: #/commit/ba673c3e70477759a7cbbc9ffcea5a3e55191065
-[`e5292f0`]: #/commit/e5292f0647b2c6233a4a28fb1fa039f4cd588142
-[`4a80008`]: #/commit/4a800089169bd2e443463bd0a11daec20f1a2b62
-[`2770066`]: #/commit/2770066b6222724eb171c0d7c47e8b83d2d6aa7b
-[`cfbac5f`]: #/commit/cfbac5fd0d64908d898032902201bbee68fecd4b
+[`8a05010`]: #/commit/8a05010262325c3e176744f5c1be427ebd0cd641
+[`4c2908d`]: #/commit/4c2908ddf80b167b19ff7e4ec2f69322e893fed1
 [`d821fce`]: #/commit/d821fcefd5074a6286d3e43a0ed7ed4075f2308d
