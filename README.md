@@ -2,7 +2,7 @@
 
 <div align="center">
 <sub>
-A databender library/executable made in Rust. Comes with option loading, and proc macros to help development.
+A databender executable made in Rust. Comes with option loading, and proc macros to help development.
 </sub>
 </div>
 
