@@ -1,18 +1,18 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "test_data/random.txt"
+inputfile = "test.rs"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "garbage/gltch.txt"
+outputfile = "die.rs"
 
 # How many times to execute the application
-times = 5
+times = 1
 
 # How many times to perform the mutations in a row
 iterations = [1000]
 
 # Size of each chunk to mutate at a time
-chunksize = [1000]
+chunksize = [100]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
@@ -21,6 +21,7 @@ chunksize = [1000]
 mutations = [
     ["Void", "Chaos"],
     ["Void", "Chaos", "Void"],
+    ["Void", "Void"],
     ["Reverse"]
 ]
 
