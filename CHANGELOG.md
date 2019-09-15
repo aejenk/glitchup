@@ -44,13 +44,19 @@ greatly appreciated by the community. 💖
 
 ### Changes
 
+#### Documentation
+
+- **added tutorial** ([`5c33b94`])
+
+- **updated readme and q&a** ([`4c2908d`])
+
+#### Miscellaneous Tasks
+
+- **Updated cargo.toml** ([`66b10ff`])
+
 #### Bug Fixes
 
 - **added seed to bender to help conflicts** ([`8a05010`])
-
-#### Documentation
-
-- **updated readme and q&a** ([`4c2908d`])
 
 ## [0.3.0] – _The Alpha_
 
@@ -90,6 +96,8 @@ greatly appreciated by the community. 💖
 
 <!-- [commits] -->
 
+[`5c33b94`]: #/commit/5c33b9498ab119737346bc62fb01bbc418cdb333
+[`66b10ff`]: #/commit/66b10ff28ed829a1e07e94b5a59807e091078039
 [`8a05010`]: #/commit/8a05010262325c3e176744f5c1be427ebd0cd641
 [`4c2908d`]: #/commit/4c2908ddf80b167b19ff7e4ec2f69322e893fed1
 [`d821fce`]: #/commit/d821fcefd5074a6286d3e43a0ed7ed4075f2308d
