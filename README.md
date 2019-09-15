@@ -37,6 +37,8 @@ A databender executable made in Rust. Comes with option loading, and proc macros
 
 If you have any questions, for example *"What's databending?"* or *"Why did you make this?"*, check the [**Q&A**](./Q&A.md)
 
+If you wanna have a headstart on databending, check out the [databending tutorial!](./TUTORIAL.md)
+
 ## Options
 
 An example options file can be found at [`Options.toml`](./Options.toml). I'll explain some important parts:

@@ -1,12 +1,12 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "test.rs"
+inputfile = "images/ukelele.png"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "output/die.rs"
+outputfile = "images/corrupted/jpeg-corrupted.jpg"
 
 # How many times to execute the application
-times = 1
+times = 100
 
 # How many times to perform the mutations in a row
 iterations = [1000]
@@ -19,10 +19,7 @@ chunksize = [1000]
 # Shift, Shuffle, Swap
 # Increase, Gradient
 mutations = [
-    ["Chaos", "Chaos", "Chaos", "Chaos"],
-    ["Void" , "Void" , "Void" , "Void"],
-    ["Increase","Increase","Increase","Increase"],
-    ["Gradient","Gradient","Gradient","Gradient"]
+    ["Shift"]
 ]
 
 # Additional options for special mutations.
@@ -40,5 +37,5 @@ accelerate_in = [100_000, 5_000_000]
 # You can override options for mutations.
 # Just use <MutationName>Config.
 [ShiftConfig]
-iterations = [10]
-chunksize = [5000]
+iterations = [1,100]
+chunksize = [50,5000]
