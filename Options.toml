@@ -1,18 +1,18 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "images/ukelele.png"
+inputfile = "images/lamplighter.png"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "images/corrupted/jpeg-corrupted.jpg"
+outputfile = "images/corrupted/png-corrupted.png"
 
 # How many times to execute the application
-times = 100
+times = 1000
 
 # How many times to perform the mutations in a row
-iterations = [1000]
+iterations = [10]
 
 # Size of each chunk to mutate at a time
-chunksize = [1000]
+chunksize = [10]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,

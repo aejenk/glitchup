@@ -48,4 +48,10 @@ impl Loader {
         rename(from, to)?;
         Ok(())
     }
+
+    pub fn file_exists(file: &str) -> bool {
+        use std::path::Path;
+
+        Path::new(file).exists()
+    }
 }
