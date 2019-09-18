@@ -4,19 +4,28 @@
 mod benders;
 use benders::KaBender;
 
+mod configuration;
+use configuration::Configuration;
+
 use rayon::prelude::*;
 
 mod mutations;
 
 fn main() {
-    // Initialises a bender with a configuration file.
-    let bender = KaBender::new("Options.toml", String::from(""));
+    // Initialises the configuration for the application.
+    let conf = match Configuration::new("Options.toml") {
+        Err(msg) => {
+            eprintln!("{}", msg);
+            return;
+        },
+        Ok(conf) => conf,
+    };
 
     // Retrieves some options from the configuration.
-    let loops = bender.config.times.clone().unwrap_or(1);
+    let loops = conf.times.clone().unwrap_or(1);
 
     (0..loops).into_par_iter().for_each(|i| {
-        let bender = KaBender::new("Options.toml", i.to_string());
+        let bender = KaBender::new(&conf, i.to_string());
         bender.run();
     });
 }

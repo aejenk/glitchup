@@ -64,17 +64,18 @@ impl Mutation for Shift {
 
         let len = data.len();
         let (index_min, index_max) = (len/50, len);
+        let new_max = index_max - index_min;
 
         self.iterations = rng.gen_range(it_min, it_max);
         self.chunk_size = rng.gen_range(ch_min, ch_max);
 
         for _ in 0..self.iterations {
-            let index = rng.gen_range(index_min, index_max);
-            let m_index = rng.gen_range(0, index_max - self.chunk_size - index_min);
+            let index = rng.gen_range(0, new_max);
+            let m_index = rng.gen_range(0, new_max - self.chunk_size);
 
             if let Some(mut slice) = data.get_mut(index_min..index_max){
                 let result = slice.try_moveslice(
-                    index-index_min..self.chunk_size+index-index_min,
+                    index..self.chunk_size+index,
                     m_index
                 );
 
