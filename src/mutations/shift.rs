@@ -74,8 +74,9 @@ impl Mutation for Shift {
             let m_index = rng.gen_range(0, new_max - self.chunk_size);
 
             if let Some(mut slice) = data.get_mut(index_min..index_max){
+                let max_i = if self.chunk_size+index > slice.len() {slice.len()} else {self.chunk_size+index};
                 let result = slice.try_moveslice(
-                    index..self.chunk_size+index,
+                    index..max_i,
                     m_index
                 );
 
