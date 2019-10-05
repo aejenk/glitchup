@@ -1,25 +1,27 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "images/lamplighter.png"
+inputfile = "somedumbvid.avi"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "images/corrupted/png-corrupted.png"
+outputfile = "output/hands.avi"
 
 # How many times to execute the application
-times = 1000
+times = 10
 
 # How many times to perform the mutations in a row
-iterations = [10]
+iterations = [1,10]
 
 # Size of each chunk to mutate at a time
-chunksize = [10]
+chunksize = [100_000_000,1_000_000_000]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
 # Increase, Gradient
 mutations = [
-    ["Shift"]
+    ["Shift", "Gradient", "Swap"],
+	["Swap", "Gradient", "Increase"],
+	["Chaos", "Void", "Shift"]
 ]
 
 # Additional options for special mutations.
@@ -32,10 +34,10 @@ increase_by = [1,255]
 
 [GradientConfig]
 accelerate_by = [1,2]
-accelerate_in = [100_000, 5_000_000]
+accelerate_in = [1_000_000, 10_000_000]
 
 # You can override options for mutations.
 # Just use <MutationName>Config.
-[ShiftConfig]
-iterations = [1,100]
-chunksize = [50,5000]
+# [ShiftConfig]
+# iterations = [3,5]
+# chunksize = [100,1000]
