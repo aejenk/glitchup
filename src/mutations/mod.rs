@@ -7,3 +7,4 @@ pub mod shuffle;
 pub mod swap;
 pub mod increase;
 pub mod gradient;
+pub mod multiply;

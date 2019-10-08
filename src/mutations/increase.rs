@@ -54,7 +54,7 @@ impl Mutation for Increase {
             else {panic!("CHUNKSIZE not [INT,INT]")}
         } else {panic!("CHUNKSIZE not ARR")};
 
-        // Sets the Chunksize range
+        // Sets the IncreaseBy range
         if let OArray(range) = &increasecfg["increase_by"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
                 self.ranges.ic_range = (*min as usize, *max as usize);
