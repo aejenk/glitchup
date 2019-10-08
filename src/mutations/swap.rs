@@ -83,11 +83,11 @@ impl Mutation for Swap {
             let slice2 = right.get_mut(index2..index2+self.chunk_size);
 
             if slice1.is_none() || slice2.is_none() {
-                println!("Diagnostics before panic.");
-                println!("i1r:{}, i2r:{}", splitdex - self.chunk_size, len - splitdex - self.chunk_size);
-                println!("flen:{}, dex:{}, ch:{}", len, splitdex, self.chunk_size);
-                println!("len:{}, i1a/i1b:{}/{}", llen, index1, index1+self.chunk_size);
-                println!("len:{}, i2a/i2b:{}/{}", rlen, index2, index2+self.chunk_size);
+                eprintln!("Diagnostics before panic.");
+                eprintln!("i1r:{}, i2r:{}", splitdex - self.chunk_size, len - splitdex - self.chunk_size);
+                eprintln!("flen:{}, dex:{}, ch:{}", len, splitdex, self.chunk_size);
+                eprintln!("len:{}, i1a/i1b:{}/{}", llen, index1, index1+self.chunk_size);
+                eprintln!("len:{}, i2a/i2b:{}/{}", rlen, index2, index2+self.chunk_size);
                 panic!("Out of bounds error. If you see this, please contact the developer.");
             }
 
