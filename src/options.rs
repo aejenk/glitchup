@@ -12,6 +12,9 @@ pub enum MutOptionVal {
     /// Represents an `isize`
     OInt(isize),
 
+    /// Represents a `f64`
+    OFloat(f64),
+
     /// Represents a `bool`
     OBool(bool),
 
