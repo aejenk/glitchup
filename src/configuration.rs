@@ -114,6 +114,13 @@ pub struct GradientConfig {
     accelerate_in: Option<Vec<isize>> 
 }
 
+#[derive(Debug, Deserialize, Clone, MutConfig)]
+pub struct MultiplyConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
+    multiply_by: Option<Vec<f64>>,
+}
+
 impl Configuration {
 
     /// Creates a new configuration, already setup.
