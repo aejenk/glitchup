@@ -56,7 +56,7 @@ impl Mutation for Multiply {
 
         // Sets the MultiplyBy range
         if let OArray(range) = &multiplycfg["multiply_by"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
+            if let (OFloat(min), OFloat(max)) = (&range[0], &range[1]) {
                 self.ranges.ml_range = (*min as f64, *max as f64);
             }
             else {panic!("MULTIPLYBY not [FLOAT,FLOAT]")}
@@ -81,7 +81,9 @@ impl Mutation for Multiply {
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
 
-            if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
+            let endindex = if self.chunk_size + index > data.len() {data.len()} else {self.chunk_size + index};
+
+            if let Some(slice) = data.get_mut(index..endindex) {
                 for chr in slice.iter_mut() {
                     *chr = ((*chr as f64 * self.multiply_by) as usize % 256) as u8;
                 }
