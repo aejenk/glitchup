@@ -1,5 +1,5 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "somedumbvid.avi"
+inputfile = "input/somedumbvid.avi"
 
 # Can be omitted
 # Specifies the output file
@@ -19,15 +19,14 @@ chunksize = [100_000_000,1_000_000_000]
 # Shift, Shuffle, Swap
 # Increase, Gradient
 mutations = [
-    ["Shift", "Gradient", "Swap"],
-	["Swap", "Gradient", "Increase"],
-	["Chaos", "Void", "Shift"]
+    ["Shift", "Gradient", "Increase", "Loops"],
 ]
 
 # Additional options for special mutations.
 # If more options are required, the application should inform you of what to do.
 [LoopConfig]
 loops = [10]
+chunksize = [1_000_000]
 
 [IncreaseConfig]
 increase_by = [1,255]

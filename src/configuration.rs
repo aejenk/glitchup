@@ -138,6 +138,14 @@ impl Configuration {
     fn setup_config(&mut self) {
         let muts_passed = self.mutations.concat();
 
+        const POSSIBLE_MUTS : [&str; 9]= ["Void", "Chaos", "Loops", "Reverse", "Shift", "Shuffle", "Swap", "Increase", "Gradient"];
+
+        for string in &muts_passed {
+            if !POSSIBLE_MUTS.contains(&string.as_str()) {
+                panic!("Invalid mutation: {:?}\n\tOnly allowed mutations: {:#?}", string, POSSIBLE_MUTS);
+            }
+        }
+
         self.iterations = verify_num_option(&self.iterations, "iterations", "globally");
         self.chunksize = verify_num_option(&self.chunksize, "chunksize", "globally");
 
