@@ -53,6 +53,7 @@ pub struct Configuration {
     pub IncreaseConfig: Option<IncreaseConfig>,
     pub GradientConfig: Option<GradientConfig>,
     pub MultiplyConfig: Option<MultiplyConfig>,
+    pub CompressConfig: Option<CompressConfig>,
 }
 
 /* Derivative configs */
@@ -122,6 +123,13 @@ pub struct MultiplyConfig {
     multiply_by: Option<Vec<f64>>,
 }
 
+#[derive(Debug, Deserialize, Clone, MutConfig)]
+pub struct CompressConfig {
+    iterations: Option<Vec<isize>>,
+    chunksize: Option<Vec<isize>>,
+    compress_by: Option<Vec<isize>>,
+}
+
 impl Configuration {
 
     /// Creates a new configuration, already setup.
@@ -146,7 +154,8 @@ impl Configuration {
     fn setup_config(&mut self) {
         let muts_passed = self.mutations.concat();
 
-        const POSSIBLE_MUTS : [&str; 10]= ["Void", "Chaos", "Loops", "Reverse", "Shift", "Shuffle", "Swap", "Increase", "Gradient", "Multiply"];
+        const POSSIBLE_MUTS : [&str; 11]= ["Void", "Chaos", "Loops", "Reverse", "Shift", "Shuffle", "Swap",
+                                           "Increase", "Gradient", "Multiply", "Compress"];
 
         for string in &muts_passed {
             if !POSSIBLE_MUTS.contains(&string.as_str()) {
@@ -167,6 +176,7 @@ impl Configuration {
         let increase_exists = muts_passed.contains(&String::from("Increase"));
         let gradient_exists = muts_passed.contains(&String::from("Gradient"));
         let multiply_exists = muts_passed.contains(&String::from("Multiply"));
+        let compress_exists = muts_passed.contains(&String::from("Compress"));
 
         // If mutation not included, reset it to None.
         if !void_exists         {self.VoidConfig         = None};
@@ -179,6 +189,7 @@ impl Configuration {
         if !increase_exists     {self.IncreaseConfig     = None};
         if !gradient_exists     {self.GradientConfig     = None};
         if !multiply_exists     {self.MultiplyConfig     = None};
+        if !compress_exists     {self.CompressConfig     = None};
 
         // VoidConfig setup
         if self.VoidConfig.is_none() && void_exists {
@@ -409,6 +420,36 @@ impl Configuration {
             }
             else if let Some(l) = &x.multiply_by {
                 x.multiply_by = Some(verify_float_option(&l, "multiply_by", "under '[MultiplyConfig]'"));
+            };
+        };
+
+        // CompressConfig setup
+        if self.CompressConfig.is_none() && compress_exists {
+            let example = r#"
+                [CompressConfig]
+                compress_by = [1,2]
+            "#;
+
+            panic!("You have added a 'CompressConfig' mutation, but haven't passed its options.
+                    \nSpecifically, the 'compress_by' option needs to be passed under '[CompressConfig]'.
+                    \nThe following is an example:
+                    \n{}", example);
+        }
+        else if let (Some(x), true) = (&mut self.CompressConfig, compress_exists) {
+            x.chunksize = if let Some(ch) = &x.chunksize
+                {Some(verify_int_option(&ch, "chunksize", "under '[CompressConfig]'"))}
+                else {Some(self.chunksize.clone())};
+            
+            x.iterations = if let Some(ch) = &x.iterations
+                {Some(verify_int_option(&ch, "iterations", "under '[CompressConfig]'"))}
+                else {Some(self.iterations.clone())};
+
+            if x.compress_by.is_none() {
+                panic!("You have added a 'Compress' mutation, but haven't passed the 'compress_by' option.
+                        \nFor example: 'compress_by = [1,2]'");
+            }
+            else if let Some(l) = &x.compress_by {
+                x.compress_by = Some(verify_int_option(&l, "compress_by", "under '[CompressConfig]'"));
             };
         };
 

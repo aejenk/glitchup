@@ -32,7 +32,7 @@ impl Mutation for Void {
 
         let cfg = &config.to_hashmap();
         let voidcfg = if let OMap(map) = &cfg["VoidConfig"] {map} else {
-            println!("not configuring VOID - not included.");
+            // println!("not configuring VOID - not included.");
             return;
         };
 

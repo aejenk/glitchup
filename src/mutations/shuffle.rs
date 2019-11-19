@@ -33,7 +33,7 @@ impl Mutation for Shuffle {
 
         let cfg = &config.to_hashmap();
         let shufflecfg = if let OMap(map) = &cfg["ShuffleConfig"] {map} else {
-            println!("not configuring SHUFFLE - not included.");
+            // println!("not configuring SHUFFLE - not included.");
             return;
         };
 

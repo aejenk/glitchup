@@ -32,7 +32,7 @@ impl Mutation for Swap {
 
         let cfg = &config.to_hashmap();
         let swapcfg = if let OMap(map) = &cfg["SwapConfig"] {map} else {
-            println!("not configuring SWAP - not included.");
+            // println!("not configuring SWAP - not included.");
             return;
         };
 

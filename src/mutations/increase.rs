@@ -34,7 +34,7 @@ impl Mutation for Increase {
 
         let cfg = &config.to_hashmap();
         let increasecfg = if let OMap(map) = &cfg["IncreaseConfig"] {map} else {
-            println!("not configuring INCREASE - not included.");
+            // println!("not configuring INCREASE - not included.");
             return;
         };
 
