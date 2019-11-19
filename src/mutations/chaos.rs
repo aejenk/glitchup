@@ -35,7 +35,7 @@ impl Mutation for Chaos {
 
         let cfg = &config.to_hashmap();
         let chaoscfg = if let OMap(map) = &cfg["ChaosConfig"] {map} else {
-            println!("not configuring CHAOS - not included.");
+            // println!("not configuring CHAOS - not included.");
             return;
         };
 

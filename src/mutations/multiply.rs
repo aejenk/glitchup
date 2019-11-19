@@ -34,7 +34,7 @@ impl Mutation for Multiply {
 
         let cfg = &config.to_hashmap();
         let multiplycfg = if let OMap(map) = &cfg["MultiplyConfig"] {map} else {
-            println!("not configuring INCREASE - not included.");
+            // println!("not configuring INCREASE - not included.");
             return;
         };
 

@@ -36,7 +36,7 @@ impl Mutation for Gradient {
 
         let cfg = &config.to_hashmap();
         let gradientcfg = if let OMap(map) = &cfg["GradientConfig"] {map} else {
-            println!("not configuring GRADIENT - not included.");
+            // println!("not configuring GRADIENT - not included.");
             return;
         };
 
