@@ -1,18 +1,18 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "input/smug.tif"
+inputfile = "input/niko.tif"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "output/hdie.tif"
+outputfile = "output/kino.tif"
 
 # How many times to execute the application
-times = 30
+times = 300
 
 # How many times to perform the mutations in a row
 iterations = [1,5]
 
 # Size of each chunk to mutate at a time
-chunksize = [4600000,46000000]
+chunksize = [19300,193000]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
@@ -21,6 +21,13 @@ chunksize = [4600000,46000000]
 # Compress
 mutations = [
 	["Compress"],
+	["Multiply"],
+	["Reverse"],
+	["Shift"],
+	["Shift", "Multiply", "Reverse"],
+	["Void"],
+	["Chaos"],
+	["Swap"]
 ]
 
 # Additional options for special mutations.
