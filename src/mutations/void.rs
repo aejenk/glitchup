@@ -32,7 +32,7 @@ impl Mutation for Void {
 
         let cfg = &config.to_hashmap();
         let voidcfg = if let OMap(map) = &cfg["VoidConfig"] {map} else {
-            println!("not configuring VOID - not included.");
+            // println!("not configuring VOID - not included.");
             return;
         };
 
@@ -69,7 +69,9 @@ impl Mutation for Void {
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
 
-            if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
+            let endindex = if self.chunk_size + index > data.len() {data.len()} else {self.chunk_size + index};
+
+            if let Some(slice) = data.get_mut(index..endindex) {
                 for chr in slice.iter_mut() {
                     *chr = b'0';
                 }

@@ -1,42 +1,49 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "input/somedumbvid.avi"
+inputfile = "input/smug.tif"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "output/hands.avi"
+outputfile = "output/hdie.tif"
 
 # How many times to execute the application
-times = 10
+times = 30
 
 # How many times to perform the mutations in a row
-iterations = [1,10]
+iterations = [1,5]
 
 # Size of each chunk to mutate at a time
-chunksize = [100_000_000,1_000_000_000]
+chunksize = [4600000,46000000]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
 # Shift, Shuffle, Swap
-# Increase, Gradient
+# Increase, Gradient, Multiply
+# Compress
 mutations = [
-    ["Shift", "Gradient", "Increase", "Loops"],
+	["Compress"],
 ]
 
 # Additional options for special mutations.
 # If more options are required, the application should inform you of what to do.
 [LoopConfig]
-loops = [10]
-chunksize = [1_000_000]
+loops = [20]
+chunksize = [1_00_000]
 
 [IncreaseConfig]
 increase_by = [1,255]
 
 [GradientConfig]
 accelerate_by = [1,2]
-accelerate_in = [1_000_000, 10_000_000]
+accelerate_in = [10_000, 100_000]
+
+[MultiplyConfig]
+multiply_by = [0.5,1.5]
 
 # You can override options for mutations.
 # Just use <MutationName>Config.
-# [ShiftConfig]
-# iterations = [3,5]
-# chunksize = [100,1000]
+[ShiftConfig]
+iterations = [100,1000]
+chunksize = [1,10]
+
+[CompressConfig]
+compress_by = [2]

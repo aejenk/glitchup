@@ -36,7 +36,7 @@ impl Mutation for Gradient {
 
         let cfg = &config.to_hashmap();
         let gradientcfg = if let OMap(map) = &cfg["GradientConfig"] {map} else {
-            println!("not configuring GRADIENT - not included.");
+            // println!("not configuring GRADIENT - not included.");
             return;
         };
 
@@ -96,7 +96,9 @@ impl Mutation for Gradient {
             let mut n = self.accelerate_by;
             let mut i = 0;
 
-            if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
+            let endindex = if self.chunk_size + index > data.len() {data.len()} else {self.chunk_size + index};
+
+            if let Some(slice) = data.get_mut(index..endindex) {
                 for chr in slice.iter_mut() {
                     *chr = ((*chr as usize + n) % 256) as u8;
                     i += 1;

@@ -34,7 +34,7 @@ impl Mutation for Increase {
 
         let cfg = &config.to_hashmap();
         let increasecfg = if let OMap(map) = &cfg["IncreaseConfig"] {map} else {
-            println!("not configuring INCREASE - not included.");
+            // println!("not configuring INCREASE - not included.");
             return;
         };
 
@@ -54,7 +54,7 @@ impl Mutation for Increase {
             else {panic!("CHUNKSIZE not [INT,INT]")}
         } else {panic!("CHUNKSIZE not ARR")};
 
-        // Sets the Chunksize range
+        // Sets the IncreaseBy range
         if let OArray(range) = &increasecfg["increase_by"] {
             if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
                 self.ranges.ic_range = (*min as usize, *max as usize);
@@ -81,7 +81,9 @@ impl Mutation for Increase {
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
 
-            if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
+            let endindex = if self.chunk_size + index > data.len() {data.len()} else {self.chunk_size + index};
+
+            if let Some(slice) = data.get_mut(index..endindex) {
                 for chr in slice.iter_mut() {
                     *chr = ((*chr as usize + self.increase_by) % 256) as u8;
                 }

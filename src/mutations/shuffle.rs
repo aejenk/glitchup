@@ -33,7 +33,7 @@ impl Mutation for Shuffle {
 
         let cfg = &config.to_hashmap();
         let shufflecfg = if let OMap(map) = &cfg["ShuffleConfig"] {map} else {
-            println!("not configuring SHUFFLE - not included.");
+            // println!("not configuring SHUFFLE - not included.");
             return;
         };
 
@@ -70,7 +70,9 @@ impl Mutation for Shuffle {
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
 
-            if let Some(slice) = data.get_mut(index..self.chunk_size+index){
+            let endindex = if self.chunk_size + index > data.len() {data.len()} else {self.chunk_size + index};
+
+            if let Some(slice) = data.get_mut(index..endindex){
                 slice.shuffle(&mut rng);
             }
         }
