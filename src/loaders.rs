@@ -1,5 +1,4 @@
 use std::fs::{OpenOptions, copy, rename};
-use std::io::Read;
 use memmap::MmapMut;
 use std::path::PathBuf;
 
@@ -32,26 +31,8 @@ impl Loader {
         Loader::map_file_mut(to)
     }
 
-    /// Loads the contents of the file at `name` and returns it as a `String`.
-    pub fn load_file_as_string(name: &str) -> std::io::Result<String> {
-        let mut output = String::new();
-        let mut file = OpenOptions::new()
-            .read(true)
-            .open(&name)?;
-
-        file.read_to_string(&mut output)?;
-
-        Ok(output)
-    }
-
     pub fn rename_file(from: &str, to: &str) -> std::io::Result<()> {
         rename(from, to)?;
         Ok(())
-    }
-
-    pub fn file_exists(file: &str) -> bool {
-        use std::path::Path;
-
-        Path::new(file).exists()
     }
 }
