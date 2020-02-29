@@ -145,15 +145,6 @@ impl Configuration {
         Ok(conf)
     }
 
-    /// Creates a new configuration from a TOML formatted string.
-    pub fn from_string(config: String) -> Result<Self, String> {
-        let mut conf : Configuration = TomlProcessor::parse_toml_as_options(config).unwrap();
-
-        conf.setup_config();
-
-        Ok(conf)
-    }
-
     /// Sets up the configurations.
     /// 
     /// Is a huge function due to multiple repeated boilerplate code.

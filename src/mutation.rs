@@ -1,6 +1,6 @@
 use super::options::MutConfig;
 
-type Mut = Box<Mutation + Send + Sync>;
+type Mut = Box<dyn Mutation + Send + Sync>;
 
 /// A `Mutation` trait to group every kind of `Mutation`.
 /// 
