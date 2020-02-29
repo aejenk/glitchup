@@ -1,10 +1,5 @@
-use glitchconsole::{
-    mutation::Mutation,
-    options::MutConfig
-};
-
+use crate::{Configuration, mutation::Mutation};
 use std::fmt::{Display, Formatter, Error};
-
 use rand::Rng;
 use rand_xorshift::XorShiftRng;
 use rand_core::SeedableRng;
@@ -30,44 +25,21 @@ impl Display for Chaos {
 }
 
 impl Mutation for Chaos {
-    fn configure(&mut self, config: Box<&dyn MutConfig>) {
-        use glitchconsole::options::MutOptionVal::*;
-
-        let cfg = &config.to_hashmap();
-        let chaoscfg = if let OMap(map) = &cfg["ChaosConfig"] {map} else {
-            // println!("not configuring CHAOS - not included.");
-            return;
-        };
-
-        // Sets the Iterations range
-        if let OArray(range) = &chaoscfg["iterations"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ITERS not [INT,INT]")}
-        } else {panic!("ITERS not ARR")};
-
-        // Sets the Chunksize range
-        if let OArray(range) = &chaoscfg["chunksize"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ch_range = (*min as usize, *max as usize);
-            }
-            else {panic!("CHUNKSIZE not [INT,INT]")}
-        } else {panic!("CHUNKSIZE not ARR")};
-    }
+    crate::impl_configure!(
+        "ChaosConfig",
+        ["iterations", "chunksize"],
+        [it_range, ch_range]
+    );
 
     fn mutate(&mut self, data: &mut [u8]) {
         // random number generator
         let mut rng = rand::thread_rng();
+        let (index_min, index_max) = super::index_boundary(data);
 
-        let (it_min, it_max) = self.ranges.it_range;
-        let (ch_min, ch_max) = self.ranges.ch_range;
-
-        let len = data.len();
-        let (index_min, index_max) = (len/50, len);
-
-        self.iterations = rng.gen_range(it_min, it_max);
-        self.chunk_size = rng.gen_range(ch_min, ch_max);
+        crate::rangeinit!(self, rng,
+             [it_range => iterations,
+              ch_range => chunk_size]
+        );
 
         // Random number generator focused on speed.
         let mut xrng = XorShiftRng::from_rng(rng.clone()).unwrap();

@@ -1,4 +1,4 @@
-use super::options::MutConfig;
+use crate::Configuration;
 
 type Mut = Box<dyn Mutation + Send + Sync>;
 
@@ -6,7 +6,7 @@ type Mut = Box<dyn Mutation + Send + Sync>;
 /// 
 /// Must also implement the `Display` trait.
 pub trait Mutation : std::fmt::Display + std::fmt::Debug + MutationClone{
-    fn configure(&mut self, config: Box<&dyn MutConfig>);
+    fn configure(&mut self, config: &Configuration);
     fn mutate(&mut self, data : &mut [u8]);
 }
 
