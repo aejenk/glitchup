@@ -1,7 +1,4 @@
-use glitchconsole::{
-    mutation::Mutation,
-    options::MutConfig
-};
+use crate::{Configuration, mutation::Mutation};
 
 use std::fmt::{Display, Formatter, Error};
 
@@ -28,44 +25,21 @@ impl Display for Shuffle {
 }
 
 impl Mutation for Shuffle {
-    fn configure(&mut self, config: Box<&dyn MutConfig>) {
-        use glitchconsole::options::MutOptionVal::*;
-
-        let cfg = &config.to_hashmap();
-        let shufflecfg = if let OMap(map) = &cfg["ShuffleConfig"] {map} else {
-            // println!("not configuring SHUFFLE - not included.");
-            return;
-        };
-
-        // Sets the Iterations range
-        if let OArray(range) = &shufflecfg["iterations"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ITERS not [INT,INT]")}
-        } else {panic!("ITERS not ARR")};
-
-        // Sets the Chunksize range
-        if let OArray(range) = &shufflecfg["chunksize"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ch_range = (*min as usize, *max as usize);
-            }
-            else {panic!("CHUNKSIZE not [INT,INT]")}
-        } else {panic!("CHUNKSIZE not ARR")};
-    }
+    crate::impl_configure!(
+        "ShuffleConfig",
+        ["iterations", "chunksize"],
+        [it_range, ch_range]
+    );
 
     fn mutate(&mut self, data: &mut [u8]) {
         // random number generator
         let mut rng = rand::thread_rng();
+        let (index_min, index_max) = super::index_boundary(data);
 
-        let (it_min, it_max) = self.ranges.it_range;
-        let (ch_min, ch_max) = self.ranges.ch_range;
-
-        let len = data.len();
-        let (index_min, index_max) = (len/50, len);
-
-        self.iterations = rng.gen_range(it_min, it_max);
-        self.chunk_size = rng.gen_range(ch_min, ch_max);
+        crate::rangeinit!(self, rng,
+             [it_range => iterations,
+              ch_range => chunk_size]
+        );
 
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);

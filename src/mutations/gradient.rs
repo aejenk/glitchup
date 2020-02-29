@@ -1,7 +1,4 @@
-use glitchconsole::{
-    mutation::Mutation,
-    options::MutConfig
-};
+use crate::{Configuration, mutation::Mutation};
 
 use std::fmt::{Display, Formatter, Error};
 
@@ -31,64 +28,23 @@ impl Display for Gradient {
 }
 
 impl Mutation for Gradient {
-    fn configure(&mut self, config: Box<&dyn MutConfig>) {
-        use glitchconsole::options::MutOptionVal::*;
-
-        let cfg = &config.to_hashmap();
-        let gradientcfg = if let OMap(map) = &cfg["GradientConfig"] {map} else {
-            // println!("not configuring GRADIENT - not included.");
-            return;
-        };
-
-        // Sets the Iterations range
-        if let OArray(range) = &gradientcfg["iterations"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ITERS not [INT,INT]")}
-        } else {panic!("ITERS not ARR")};
-
-        // Sets the Chunksize range
-        if let OArray(range) = &gradientcfg["chunksize"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ch_range = (*min as usize, *max as usize);
-            }
-            else {panic!("CHUNKSIZE not [INT,INT]")}
-        } else {panic!("CHUNKSIZE not ARR")};
-
-        // Sets the accelerate-by range
-        if let OArray(range) = &gradientcfg["accelerate_by"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ab_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ACCELERATEBY not [INT,INT]")}
-        } else {panic!("ACCELERATEBY not ARR")};
-
-        // Sets the accelerate-in range
-        if let OArray(range) = &gradientcfg["accelerate_in"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ai_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ACCELERATEIN not [INT,INT]")}
-        } else {panic!("ACCELERATEIN not ARR")};
-    }
+    crate::impl_configure!(
+        "GradientConfig",
+        ["iterations", "chunksize", "accelerateby", "acceleratein"],
+        [it_range, ch_range, ab_range, ai_range]
+    );
 
     fn mutate(&mut self, data: &mut [u8]) {
         // random number generator
         let mut rng = rand::thread_rng();
+        let (index_min, index_max) = super::index_boundary(data);
 
-        let (it_min, it_max) = self.ranges.it_range;
-        let (ch_min, ch_max) = self.ranges.ch_range;
-        let (ab_min, ab_max) = self.ranges.ab_range;
-        let (ai_min, ai_max) = self.ranges.ai_range;
-
-        let len = data.len();
-        let (index_min, index_max) = (len/50, len);
-
-        self.iterations = rng.gen_range(it_min, it_max);
-        self.chunk_size = rng.gen_range(ch_min, ch_max);
-        self.accelerate_by = rng.gen_range(ab_min, ab_max);
-        self.accelerate_in = rng.gen_range(ai_min, ai_max);
+        crate::rangeinit!(self, rng,
+             [it_range => iterations,
+              ch_range => chunk_size,
+              ai_range => accelerate_in,
+              ab_range => accelerate_by]
+        );
 
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
