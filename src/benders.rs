@@ -6,7 +6,8 @@ use memmap::MmapMut;
 use super::mutations::{
     void::Void, chaos::Chaos, loops::Loops, reverse::Reverse,
     shift::Shift, shuffle::Shuffle, swap::Swap,
-    increase::Increase, gradient::Gradient
+    increase::Increase, gradient::Gradient, multiply::Multiply,
+    compress::Compress,
 };
 
 use super::configuration::Configuration;
@@ -160,6 +161,8 @@ impl<'a> KaBender<'a> {
             ("Swap"     , Box::new(Swap::default())),
             ("Increase" , Box::new(Increase::default())),
             ("Gradient" , Box::new(Gradient::default())),
+            ("Multiply" , Box::new(Multiply::default())),
+            ("Compress" , Box::new(Compress::default())),
         ]);
 
         self.mutmap = mutmap

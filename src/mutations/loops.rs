@@ -34,7 +34,7 @@ impl Mutation for Loops {
 
         let cfg = &config.to_hashmap();
         let loopcfg = if let OMap(map) = &cfg["LoopConfig"] {map} else {
-            println!("not configuring LOOPS - not included.");
+            // println!("not configuring LOOPS - not included.");
             return;
         };
 

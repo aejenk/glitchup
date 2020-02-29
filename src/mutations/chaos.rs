@@ -35,7 +35,7 @@ impl Mutation for Chaos {
 
         let cfg = &config.to_hashmap();
         let chaoscfg = if let OMap(map) = &cfg["ChaosConfig"] {map} else {
-            println!("not configuring CHAOS - not included.");
+            // println!("not configuring CHAOS - not included.");
             return;
         };
 
@@ -75,7 +75,9 @@ impl Mutation for Chaos {
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);
 
-            if let Some(slice) = data.get_mut(index..self.chunk_size+index) {
+            let endindex = if self.chunk_size + index > data.len() {data.len()} else {self.chunk_size + index};
+
+            if let Some(slice) = data.get_mut(index..endindex) {
                 for chr in slice.iter_mut() {
                     *chr = xrng.next_u32() as u8
                 }

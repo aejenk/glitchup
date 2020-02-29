@@ -171,7 +171,7 @@ fn extract_generic_types(data: &Data) -> Vec<Vec<&syn::PathSegment>> {
 /// 
 /// To be used by `derive` to avoid repetition.
 fn incompatible_type_panic(tyname: &String) {
-    panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\nHint: If you meant to add a struct implementing MutConfig, please name them in the following format: '{0}Config'\nPlease use one of the supported types as shown below:\n {1:#?}",tyname, ["isize", "String", "bool", "Vec<...>", "Option<...>"]);
+    panic!("Can't use \'{0}\' type - not yet supported by derive(MutConfig).\nHint: If you meant to add a struct implementing MutConfig, please name them in the following format: '{0}Config'\nPlease use one of the supported types as shown below:\n {1:#?}",tyname, ["isize", "String", "bool", "f64", "Vec<...>", "Option<...>"]);
 }
 
 /// Turns a field into an OVal. Uses the field name and its type.
@@ -186,6 +186,8 @@ fn into_oval(field: &Field, ty: &PathSegment) -> proc_macro2::TokenStream {
         quote! {OString(self.#fname.clone())}
     } else if tstr == "bool" {
         quote! {OBool(self.#fname.clone())}
+    } else if tstr == "f64" {
+        quote! {OFloat(self.#fname.clone())}
     } else if tstr == "Vec" {
         let gen = get_first_generic(&ty);
         // let v = into_oVal(&field, &gen);
@@ -258,6 +260,8 @@ fn into_subval(ty: &PathSegment, arg_name: &String) -> proc_macro2::TokenStream 
         quote! {OString(#arg.clone())}
     } else if tstr == "bool" {
         quote! {OBool(#arg.clone())}
+    } else if tstr == "f64" {
+        quote! {OFloat(#arg.clone())}
     } else if tstr == "Vec" {
         let gen = get_first_generic(&ty);
         // let v = into_oVal(&field, &gen);

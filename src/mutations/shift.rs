@@ -34,7 +34,7 @@ impl Mutation for Shift {
 
         let cfg = &config.to_hashmap();
         let shiftcfg = if let OMap(map) = &cfg["ShiftConfig"] {map} else {
-            println!("not configuring SHIFT - not included.");
+            // println!("not configuring SHIFT - not included.");
             return;
         };
 
