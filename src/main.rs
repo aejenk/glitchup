@@ -13,7 +13,7 @@ mod mutations;
 
 fn main() {
     // Initialises the configuration for the application.
-    let conf = match Configuration::new("Options.toml") {
+    let conf = match Configuration::from_file("Options.toml") {
         Err(msg) => {
             eprintln!("{}", msg);
             return;

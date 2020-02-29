@@ -132,13 +132,22 @@ pub struct CompressConfig {
 
 impl Configuration {
 
-    /// Creates a new configuration, already setup.
-    pub fn new(config_filename: &str) -> Result<Self, String> {
-        let mut conf : Configuration = TomlProcessor::parse_toml_as_options(config_filename).unwrap();
+    /// Creates a new configuration using a TOML file, already setup.
+    pub fn from_file(config_filename: &str) -> Result<Self, String> {
+        let mut conf : Configuration = TomlProcessor::parse_toml_file_as_options(config_filename).unwrap();
 
         if !Loader::file_exists(conf.inputfile.as_str()) {
             return Err(format!("File '{}' does not exist!", conf.inputfile));
         }
+
+        conf.setup_config();
+
+        Ok(conf)
+    }
+
+    /// Creates a new configuration from a TOML formatted string.
+    pub fn from_string(config: String) -> Result<Self, String> {
+        let mut conf : Configuration = TomlProcessor::parse_toml_as_options(config).unwrap();
 
         conf.setup_config();
 
@@ -453,6 +462,8 @@ impl Configuration {
             };
         };
 
+        /// Verifies that an option is of the valid integer format.
+        /// This format being `[int]` or `[int,int]`.
         fn verify_int_option(v : &Vec<isize>, name: &str, location: &str) -> Vec<isize> {
             let len = v.len();
             if len != 1 && len != 2 {
@@ -473,6 +484,8 @@ impl Configuration {
             }
         }
 
+        /// Verifies that an option is of the valid float format.
+        /// This format being `[float]` or `[float,float]`.
         fn verify_float_option(v : &Vec<f64>, name: &str, location: &str) -> Vec<f64> {
             let len = v.len();
             if len != 1 && len != 2 {

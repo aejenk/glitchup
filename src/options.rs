@@ -51,11 +51,15 @@ pub struct TomlProcessor;
 
 impl TomlProcessor {
     /// Parses a `TOML` file into a `MutConfig` struct.
-    pub fn parse_toml_as_options<T : DeserializeOwned + MutConfig>(filename: &str) -> Result<T, String>{
+    pub fn parse_toml_file_as_options<T : DeserializeOwned + MutConfig>(filename: &str) -> Result<T, String>{
         let mut result = Loader::load_file_as_string(filename).unwrap();
+        TomlProcessor::parse_toml_as_options(result)
+    }
 
+    /// Parses a `TOML` formatted string into a `MutConfig` struct.
+    pub fn parse_toml_as_options<T : DeserializeOwned + MutConfig>(toml_str: String) -> Result<T, String>{
         // Parse the toml file into a serializable struct
-        let config : T = toml::from_str(result.as_mut_str()).unwrap_or_else(
+        let config : T = toml::from_str(toml_str.as_mut_str()).unwrap_or_else(
             |err| {panic!("Error occured while serialising options: {}", err);}
         );
 
