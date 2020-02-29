@@ -1,6 +1,7 @@
 use std::fs;
 use cfgmap::{CfgMap, Checkable, Condition::*};
 use std::ops::Deref;
+use rayon::prelude::*;
 
 /* A helper class to represent the bender's configuration */
 
@@ -20,12 +21,12 @@ impl Configuration {
 
     /// REDO DOC
     pub fn verify_config(&mut self) {
-        let muts_passed : Vec<&String> = self.get_mutations().into_iter().flatten().collect();
+        let muts_passed : Vec<&String> = self.get_mutations().into_par_iter().flatten().collect();
 
         static POSSIBLE_MUTS : [&str; 11]= ["Void", "Chaos", "Loops", "Reverse", "Shift", "Shuffle", "Swap",
                                            "Increase", "Gradient", "Multiply", "Compress"];
 
-        for string in &muts_passed {
+        for string in muts_passed {
             if !POSSIBLE_MUTS.contains(&string.as_str()) {
                 panic!("Invalid mutation: {:?}\n\tOnly allowed mutations: {:#?}", string, POSSIBLE_MUTS);
             }
@@ -34,9 +35,9 @@ impl Configuration {
 
     pub fn get_mutations(&self) -> Vec<Vec<&String>> {
         self.get("mutations").unwrap().as_list().unwrap()
-            .into_iter()
+            .into_par_iter()
             .map(|mutation| 
-                mutation.as_list().unwrap().into_iter().map(
+                mutation.as_list().unwrap().into_par_iter().map(
                     |s| s.as_str().unwrap()
                 ).collect())
             .collect()

@@ -59,7 +59,7 @@ impl<'a> KaBender<'a> {
         let filelist : Vec<MmapMut> = self.init_file_n(mutations.len());
 
         // Retrieves all mutations from hashmap using the file.
-        let mutations : Vec<Muts> = mutations.iter().map(|combo| {
+        let mutations : Vec<Muts> = mutations.par_iter().map(|combo| {
             combo.iter().map(|mut_str| {
                 self.mutmap.get(*mut_str).cloned().unwrap()
             }).collect()
@@ -154,7 +154,7 @@ impl<'a> KaBender<'a> {
     /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
     fn setup_mutations(&mut self) {
         fn generate_map(muts: Vec<(&'static str, Mut)>) -> HashMap<String, Mut> {
-            muts.into_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
+            muts.into_par_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
         }
 
         let mutmap = generate_map(vec![
@@ -172,7 +172,7 @@ impl<'a> KaBender<'a> {
         ]);
 
         self.mutmap = mutmap
-            .into_iter()
+            .into_par_iter()
             .map(|mut mutation| {
                 mutation.1.configure(self.config);
                 mutation
