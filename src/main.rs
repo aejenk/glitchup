@@ -9,7 +9,6 @@ use configuration::Configuration;
 
 mod mutations;
 mod loaders;
-mod options;
 mod mutation;
 
 use rayon::prelude::*;
