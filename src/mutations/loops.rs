@@ -46,8 +46,14 @@ impl Mutation for Loops {
 
         let len = data.len();
 
+        // MIN < MAX-(CH*LP)
+        // CH*LP < MAX-MIN
+        // LP < (MAX-MIN)/CH
+        let min_safe_loops = (index_max-index_min)/self.chunk_size;
+        self.loops = self.loops.min(min_safe_loops);
+
         for _ in 0..self.iterations {
-            let index = rng.gen_range(index_min, index_max);
+            let index = rng.gen_range(index_min, index_max-(self.chunk_size*self.loops));
 
             // Get whole file to allow circular access
             if let Some(slice) = data.get_mut(0..) {

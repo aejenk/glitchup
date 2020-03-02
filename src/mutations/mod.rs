@@ -29,7 +29,7 @@ macro_rules! impl_configure {
         fn configure(&mut self, config: &Configuration) {
         $(
             if let Some(range) = config.get_option_as_single_int($category, $value) {
-                self.ranges.$rangename = (range as usize, range as usize);
+                self.ranges.$rangename = (range as usize, range as usize + 1);
             } else if let Some(range) = config.get_option_as_range_int($category, $value) {
                 self.ranges.$rangename = (range.0 as usize, range.1 as usize);
             } else {
@@ -43,7 +43,7 @@ macro_rules! impl_configure {
         fn configure(&mut self, config: &Configuration) {
         $(
             if let Some(range) = config.get_option_as_single_int($category, $value) {
-                self.ranges.$rangename = (range as usize, range as usize);
+                self.ranges.$rangename = (range as usize, range as usize + 1);
             } else if let Some(range) = config.get_option_as_range_int($category, $value) {
                 self.ranges.$rangename = (range.0 as usize, range.1 as usize);
             } else {
@@ -53,7 +53,7 @@ macro_rules! impl_configure {
 
         $(
             if let Some(range) = config.get_option_as_single_float($category, $fvalue) {
-                self.ranges.$frangename = (range as f64, range as f64);
+                self.ranges.$frangename = (range as f64, range as f64 + 10e-10_f64);
             } else if let Some(range) = config.get_option_as_range_float($category, $fvalue) {
                 self.ranges.$frangename = (range.0 as f64, range.1 as f64);
             } else {

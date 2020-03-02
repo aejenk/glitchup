@@ -21,7 +21,7 @@ struct Ranges {
 
 impl Display for Multiply {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        write!(f, "MAG_it={}_ch={}_by={}", self.iterations, self.chunk_size, self.multiply_by)
+        write!(f, "MUL_it={}_ch={}_by={}", self.iterations, self.chunk_size, self.multiply_by)
     }
 }
 
