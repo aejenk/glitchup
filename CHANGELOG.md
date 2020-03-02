@@ -17,7 +17,12 @@ The format is based on [Keep a Changelog], and this project adheres to
 
 ## _[Unreleased]_
 
-_nothing new to show for… yet!_
+### Changes
+
+- **Made the `Loop` and `Swap` mutations safer to use**, meaning that they won't panic if given incompatible settings, only display a warning.
+- **Made the `Multiply` mutation more accurate:** Before, if only given a single option, it would generate an option between the range [0.5, 1.5]. This has been fixed to generate [0.5, 0.5 + 10e-10].
+- **Changed the format for configuration from deserializing TOML, to using `CfgMap`:** This has had a drastic effect on code structure, removing a large amount of lines, while also making the code generally cleaner.
+- **Single options no longer require `[]`:** If you want to specify a single option rather than a range, you should now do `chunksize=5000` directly.
 
 ## [0.4.0] – _Working in Parallel_
 
@@ -33,30 +38,11 @@ actual *mutations* are run in serial.
 The improvement in speed has been around 36% (4 lists) to 61% (4 lists +
 100 loops)
 
-
-### Contributions
-
-This release is made possible by the following people (in alphabetical order).
-Thank you all for your contributions. Your work – no matter how significant – is
-greatly appreciated by the community. 💖
-
-- Calmynt (<mctech26@gmail.com>)
-
 ### Changes
 
-#### Documentation
-
-- **added tutorial** ([`5c33b94`])
-
-- **updated readme and q&a** ([`4c2908d`])
-
-#### Miscellaneous Tasks
-
-- **Updated cargo.toml** ([`66b10ff`])
-
-#### Bug Fixes
-
-- **added seed to bender to help conflicts** ([`8a05010`])
+- **added tutorial**
+- **updated readme and q&a**
+- **added seed to bender to avoid conflicts**
 
 ## [0.3.0] – _The Alpha_
 
@@ -74,30 +60,8 @@ I hope you enjoy!
 P.S. There are separate binaries for `windows` and `linux`. Make sure you install the right one. Also, `Options.toml` is compulsory. Otherwise you can't really configure it, eh?
 
 
-### Contributions
-
-This release is made possible by the following people (in alphabetical order).
-Thank you all for your contributions. Your work – no matter how significant – is
-greatly appreciated by the community. 💖
-
-- Andre Jenkins (<mctech26@gmail.com>)
-
-### Changes
-
-#### Miscellaneous Tasks
-
-- **changed version back** ([`d821fce`])
-
 <!-- [releases] -->
 
 [unreleased]: #/compare/v0.4.0...HEAD
 [0.4.0]: #/releases/tag/v0.4.0
 [0.3.0]: #/releases/tag/v0.3.0
-
-<!-- [commits] -->
-
-[`5c33b94`]: #/commit/5c33b9498ab119737346bc62fb01bbc418cdb333
-[`66b10ff`]: #/commit/66b10ff28ed829a1e07e94b5a59807e091078039
-[`8a05010`]: #/commit/8a05010262325c3e176744f5c1be427ebd0cd641
-[`4c2908d`]: #/commit/4c2908ddf80b167b19ff7e4ec2f69322e893fed1
-[`d821fce`]: #/commit/d821fcefd5074a6286d3e43a0ed7ed4075f2308d

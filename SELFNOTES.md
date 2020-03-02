@@ -10,13 +10,13 @@ would help keep note of what changed. This can be done manually, but I wanted
 to try and use [Conventional
 Commits](https://www.conventionalcommits.org/en/v1.0.0-beta.4/). On one hand,
 it helps make commits clearer, specifically with respect to what they're trying
-to do. On the other hand, I'm using
+to do. ~~On the other hand, I'm using
 [`jilu`](https://github.com/rustic-games/jilu#%E8%AE%B0%E5%BD%95) to generate
-the changelog.
+the changelog.~~ Trying to install `jilu` breaks, meaning its use is impossible.
+As a result, the changelog has been changed to be more customized, and `jilu` will 
+no longer be used.
 
-From now on, I'll try using `jilu` to keep note of my own contributions. Any
-external contributions will of course be taken note of manually. It might be a
-small pain, but I want to see how this will go.
+An attempt to keep commits conventional however, will still be made.
 
 ### Conventional Commits
 

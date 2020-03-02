@@ -1,5 +1,4 @@
-use glitchconsole::loaders::Loader;
-use glitchconsole::mutation::Mutation;
+use super::{loaders::Loader, mutation::Mutation};
 
 use memmap::MmapMut;
 
@@ -22,7 +21,6 @@ type Muts = Vec<Mut>;
 /// A main controller of the databender.
 /// 
 /// Manages the file handling, data storage, and controls mutations.
-#[derive(Debug)]
 pub struct KaBender<'a> {
     pub seed: String,
     outdir: String,
@@ -54,13 +52,16 @@ impl<'a> KaBender<'a> {
     /// 
     /// Performs all mutation combinations using the configuration loaded.
     pub fn run(mut self) {
+        // Retrieves mutations.
+        let mutations = self.config.get_mutations();
+
         // Generates a file for each list of mutations
-        let filelist : Vec<MmapMut> = self.init_file_n(self.config.mutations.len());
+        let filelist : Vec<MmapMut> = self.init_file_n(mutations.len());
 
         // Retrieves all mutations from hashmap using the file.
-        let mutations : Vec<Muts> = self.config.mutations.iter().map(|combo| {
+        let mutations : Vec<Muts> = mutations.par_iter().map(|combo| {
             combo.iter().map(|mut_str| {
-                self.mutmap.get(mut_str).cloned().unwrap()
+                self.mutmap.get(*mut_str).cloned().unwrap()
             }).collect()
         }).collect();
 
@@ -91,15 +92,19 @@ impl<'a> KaBender<'a> {
     /// 
     /// * `n` - Number of files to initialize
     fn init_file_n(&mut self, n: usize) -> Vec<MmapMut> {
-
         println!("Initialising file...");
 
         (0..n)
             .into_par_iter()
             .map(|index| {
                 Loader::init_file_mut(
-                    &self.config.inputfile.clone(),
-                    format!("{}temp{}SEED={}.{}", self.outdir, index, self.seed, self.extension).as_str()
+                    self.config.get_inputfile(),
+                    format!("{}temp{}SEED={}.{}",
+                        self.outdir,
+                        index,
+                        self.seed,
+                        self.extension
+                    ).as_str()
                 ).unwrap()
             }).collect()
     }
@@ -109,11 +114,12 @@ impl<'a> KaBender<'a> {
         use std::path::Path;
         use std::ffi::OsStr;
 
-        let input = &self.config.inputfile.clone();
+        let input = self.config.get_inputfile();
 
         // Sets output name to custom name, or input if not specified.
-        let output = &self.config.outputfile.clone()
-            .unwrap_or(input.clone());
+        let output: &str = self.config.get("outputfile")
+            .and_then(|v| v.as_str())
+            .map_or(input.clone(), |s| s.as_str());
 
         let path = Path::new(&output);
 
@@ -148,7 +154,7 @@ impl<'a> KaBender<'a> {
     /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
     fn setup_mutations(&mut self) {
         fn generate_map(muts: Vec<(&'static str, Mut)>) -> HashMap<String, Mut> {
-            muts.into_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
+            muts.into_par_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
         }
 
         let mutmap = generate_map(vec![
@@ -166,9 +172,9 @@ impl<'a> KaBender<'a> {
         ]);
 
         self.mutmap = mutmap
-            .into_iter()
+            .into_par_iter()
             .map(|mut mutation| {
-                mutation.1.configure(Box::new(self.config));
+                mutation.1.configure(self.config);
                 mutation
             })
             .collect();
@@ -193,8 +199,6 @@ impl<'a> KaBender<'a> {
         );
 
         println!("Renaming temporary file to {}", genoutput);
-
-        println!("{}temp{}SEED={}.{}", self.outdir, iter, self.seed, self.extension);
 
         // Renames temporary file to actual output name
         Loader::rename_file(

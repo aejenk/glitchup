@@ -1,7 +1,4 @@
-use glitchconsole::{
-    mutation::Mutation,
-    options::MutConfig
-};
+use crate::{Configuration, mutation::Mutation};
 
 use std::fmt::{Display, Formatter, Error};
 
@@ -29,54 +26,22 @@ impl Display for Increase {
 }
 
 impl Mutation for Increase {
-    fn configure(&mut self, config: Box<&dyn MutConfig>) {
-        use glitchconsole::options::MutOptionVal::*;
-
-        let cfg = &config.to_hashmap();
-        let increasecfg = if let OMap(map) = &cfg["IncreaseConfig"] {map} else {
-            // println!("not configuring INCREASE - not included.");
-            return;
-        };
-
-        // Sets the Iterations range
-        if let OArray(range) = &increasecfg["iterations"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ITERS not [INT,INT]")}
-        } else {panic!("ITERS not ARR")};
-
-        // Sets the Chunksize range
-        if let OArray(range) = &increasecfg["chunksize"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ch_range = (*min as usize, *max as usize);
-            }
-            else {panic!("CHUNKSIZE not [INT,INT]")}
-        } else {panic!("CHUNKSIZE not ARR")};
-
-        // Sets the IncreaseBy range
-        if let OArray(range) = &increasecfg["increase_by"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ic_range = (*min as usize, *max as usize);
-            }
-            else {panic!("INCREASEBY not [INT,INT]")}
-        } else {panic!("INCREASEBY not ARR")};
-    }
+    crate::impl_configure!(
+        "IncreaseConfig",
+        ["iterations", "chunksize", "increaseby"],
+        [it_range, ch_range, ic_range]
+    );
 
     fn mutate(&mut self, data: &mut [u8]) {
         // random number generator
         let mut rng = rand::thread_rng();
+        let (index_min, index_max) = super::index_boundary(data);
 
-        let (it_min, it_max) = self.ranges.it_range;
-        let (ch_min, ch_max) = self.ranges.ch_range;
-        let (in_min, in_max) = self.ranges.ic_range;
-
-        let len = data.len();
-        let (index_min, index_max) = (len/50, len);
-
-        self.iterations = rng.gen_range(it_min, it_max);
-        self.chunk_size = rng.gen_range(ch_min, ch_max);
-        self.increase_by= rng.gen_range(in_min, in_max);
+        crate::rangeinit!(self, rng,
+             [it_range => iterations,
+              ch_range => chunk_size,
+              ic_range => increase_by]
+        );
 
         for _ in 0..self.iterations {
             let index = rng.gen_range(index_min, index_max);

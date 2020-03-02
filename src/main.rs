@@ -7,9 +7,11 @@ use benders::KaBender;
 mod configuration;
 use configuration::Configuration;
 
-use rayon::prelude::*;
-
 mod mutations;
+mod loaders;
+mod mutation;
+
+use rayon::prelude::*;
 
 fn main() {
     // Initialises the configuration for the application.
@@ -22,9 +24,11 @@ fn main() {
     };
 
     // Retrieves some options from the configuration.
-    let loops = conf.times.clone().unwrap_or(1);
+    let loops = conf.get("times")
+        .and_then(|times| times.as_int())
+        .unwrap_or(&300);
 
-    (0..loops).into_par_iter().for_each(|i| {
+    (0..*loops).into_par_iter().for_each(|i| {
         let bender = KaBender::new(&conf, i.to_string());
         bender.run();
     });
