@@ -2,20 +2,17 @@
 
 All notable changes to this project are documented in this file.
 
-The format is based on [Keep a Changelog], and this project adheres to
-[Semantic Versioning]. The file is auto-generated using [Conventional Commits].
-
-[keep a changelog]: https://keepachangelog.com/en/1.0.0/
-[semantic versioning]: https://semver.org/spec/v2.0.0.html
-[conventional commits]: https://www.conventionalcommits.org/en/v1.0.0-beta.4/
-
 ## Overview
 
-- [unreleased](#unreleased)
-- [`0.4.0`](#040) – _2019.09.14_
-- [`0.3.0`](#030) – _2019.09.09_
+- [Changelog](#changelog)
+  - [Overview](#overview)
+  - [[0.4.2]](#042)
+    - [Changes](#changes)
+  - [[0.4.0] – _Working in Parallel_](#040--working-in-parallel)
+    - [Changes](#changes-1)
+  - [[0.3.0] – _The Alpha_](#030--the-alpha)
 
-## _[Unreleased]_
+## [0.4.2]
 
 ### Changes
 
