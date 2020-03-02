@@ -41,6 +41,11 @@ impl Mutation for Swap {
               ch_range => chunk_size]
         );
 
+        if self.chunk_size >= (0.49 * data.len() as f64) as usize {
+            println!("Cannot perform Swap - Chunksize is too large.");
+            return;
+        }
+
         let sl = data
                 .get_mut(index_min..index_max)
                 .unwrap();

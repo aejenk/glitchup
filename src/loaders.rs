@@ -1,6 +1,7 @@
 use std::fs::{OpenOptions, copy, rename};
 use memmap::MmapMut;
 use std::path::PathBuf;
+use std::io::{Error, ErrorKind};
 
 /// A Loader struct to facilitate file manipulation (loading, memorymapping...)
 pub struct Loader;
@@ -32,7 +33,17 @@ impl Loader {
     }
 
     pub fn rename_file(from: &str, to: &str) -> std::io::Result<()> {
-        rename(from, to)?;
-        Ok(())
+        if !Loader::file_exists(from) {
+            Err(Error::new(ErrorKind::NotFound, format!("File '{}' does not exist.", from)))
+        }
+        else {
+            rename(from, to)?;
+            Ok(())
+        }
+    }
+
+    #[inline]
+    pub fn file_exists(path: &str) -> bool {
+        std::path::Path::new(path).exists()
     }
 }

@@ -200,8 +200,6 @@ impl<'a> KaBender<'a> {
 
         println!("Renaming temporary file to {}", genoutput);
 
-        println!("{}temp{}SEED={}.{}", self.outdir, iter, self.seed, self.extension);
-
         // Renames temporary file to actual output name
         Loader::rename_file(
             format!("{}temp{}SEED={}.{}", self.outdir, iter, self.seed, self.extension).as_str(),

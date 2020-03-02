@@ -6,7 +6,7 @@ inputfile = "input/niko.tif"
 outputfile = "output/kino.tif"
 
 # How many times to execute the application
-times = 1
+times = 10
 
 # How many times to perform the mutations in a row
 iterations = [1,5]
@@ -27,7 +27,11 @@ mutations = [
 	["Shift", "Multiply", "Reverse"],
 	["Void"],
 	["Chaos"],
-	["Swap"]
+	["Swap"],
+	["Loops"],
+	["Shuffle"],
+	["Increase"],
+	["Gradient"]
 ]
 
 # Additional options for special mutations.
@@ -44,7 +48,7 @@ accelerateby = [1,2]
 acceleratein = [10_000, 100_000]
 
 [MultiplyConfig]
-multiplyby = [0.5,1.5]
+multiplyby = 0.5
 
 # You can override options for mutations.
 # Just use <MutationName>Config.
