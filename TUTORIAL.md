@@ -67,8 +67,8 @@ outputfile = "images/corrupted/jpeg-corrupted.jpg"
 
 times = 100
 
-iterations = [1000]
-chunksize = [1000]
+iterations = 1000
+chunksize = 1000
 
 mutations = [
     ["Shift"]
