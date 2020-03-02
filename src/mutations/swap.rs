@@ -1,7 +1,4 @@
-use glitchconsole::{
-    mutation::Mutation,
-    options::MutConfig
-};
+use crate::{Configuration, mutation::Mutation};
 
 use std::fmt::{Display, Formatter, Error};
 
@@ -27,42 +24,27 @@ impl Display for Swap {
 }
 
 impl Mutation for Swap {
-    fn configure(&mut self, config: Box<&dyn MutConfig>) {
-        use glitchconsole::options::MutOptionVal::*;
-
-        let cfg = &config.to_hashmap();
-        let swapcfg = if let OMap(map) = &cfg["SwapConfig"] {map} else {
-            // println!("not configuring SWAP - not included.");
-            return;
-        };
-
-        // Sets the Iterations range
-        if let OArray(range) = &swapcfg["iterations"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ITERS not [INT,INT]")}
-        } else {panic!("ITERS not ARR")};
-
-        // Sets the Chunksize range
-        if let OArray(range) = &swapcfg["chunksize"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ch_range = (*min as usize, *max as usize);
-            }
-            else {panic!("CHUNKSIZE not [INT,INT]")}
-        } else {panic!("CHUNKSIZE not ARR")};
-    }
+    crate::impl_configure!(
+        "SwapConfig",
+        ["iterations", "chunksize"],
+        [it_range, ch_range]
+    );
 
     fn mutate(&mut self, data: &mut [u8]) {
         // random number generator
         let mut rng = rand::thread_rng();
 
-        let (it_min, it_max) = self.ranges.it_range;
-        let (ch_min, ch_max) = self.ranges.ch_range;
-        let (index_min, index_max) = (data.len()/50, data.len());
+        let (index_min, index_max) = super::index_boundary(data);
 
-        self.iterations = rng.gen_range(it_min, it_max);
-        self.chunk_size = rng.gen_range(ch_min, ch_max);
+        crate::rangeinit!(self, rng,
+             [it_range => iterations,
+              ch_range => chunk_size]
+        );
+
+        if self.chunk_size >= (0.49 * data.len() as f64) as usize {
+            println!("Cannot perform Swap - Chunksize is too large.");
+            return;
+        }
 
         let sl = data
                 .get_mut(index_min..index_max)

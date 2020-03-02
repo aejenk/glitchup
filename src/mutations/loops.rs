@@ -1,7 +1,5 @@
-use glitchconsole::{
-    mutation::Mutation,
-    options::MutConfig
-};
+use crate::{Configuration, mutation::Mutation};
+
 
 use std::fmt::{Display, Formatter, Error};
 
@@ -29,60 +27,36 @@ impl Display for Loops {
 }
 
 impl Mutation for Loops {
-    fn configure(&mut self, config: Box<&dyn MutConfig>) {
-        use glitchconsole::options::MutOptionVal::*;
-
-        let cfg = &config.to_hashmap();
-        let loopcfg = if let OMap(map) = &cfg["LoopConfig"] {map} else {
-            // println!("not configuring LOOPS - not included.");
-            return;
-        };
-
-        // Sets the Iterations range
-        if let OArray(range) = &loopcfg["iterations"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.it_range = (*min as usize, *max as usize);
-            }
-            else {panic!("ITERS not [INT,INT]")}
-        } else {panic!("ITERS not ARR")};
-
-        // Sets the Chunksize range
-        if let OArray(range) = &loopcfg["chunksize"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.ch_range = (*min as usize, *max as usize);
-            }
-            else {panic!("CHUNKSIZE not [INT,INT]")}
-        } else {panic!("CHUNKSIZE not ARR")};
-
-        // Sets the Loops range
-        if let OArray(range) = &loopcfg["loops"] {
-            if let (OInt(min), OInt(max)) = (&range[0], &range[1]) {
-                self.ranges.lp_range = (*min as usize, *max as usize);
-            }
-            else {panic!("LOOPS not [INT,INT]")}
-        } else {panic!("LOOPS not ARR")};
-    }
+    crate::impl_configure!(
+        "LoopsConfig",
+        ["iterations", "chunksize", "loops"],
+        [it_range, ch_range, lp_range]
+    );
 
     fn mutate(&mut self, data: &mut [u8]) {
         // random number generator
         let mut rng = rand::thread_rng();
+        let (index_min, index_max) = super::index_boundary(data);
 
-        let (it_min, it_max) = self.ranges.it_range;
-        let (ch_min, ch_max) = self.ranges.ch_range;
-        let (lp_min, lp_max) = self.ranges.lp_range;
+        crate::rangeinit!(self, rng,
+             [it_range => iterations,
+              ch_range => chunk_size,
+              lp_range => loops]
+        );
 
         let len = data.len();
-        let (index_min, index_max) = (len/50, len);
 
-        self.iterations = rng.gen_range(it_min, it_max);
-        self.chunk_size = rng.gen_range(ch_min, ch_max);
-        self.loops      = rng.gen_range(lp_min, lp_max);
+        // MIN < MAX-(CH*LP)
+        // CH*LP < MAX-MIN
+        // LP < (MAX-MIN)/CH
+        let min_safe_loops = (index_max-index_min)/self.chunk_size;
+        self.loops = self.loops.min(min_safe_loops);
 
         for _ in 0..self.iterations {
-            let index = rng.gen_range(index_min, index_max);
+            let index = rng.gen_range(index_min, index_max-(self.chunk_size*self.loops));
 
             // Get whole file to allow circular access
-            if let Some(slice) = data.get_mut(0..len) {
+            if let Some(slice) = data.get_mut(0..) {
                 // Loop for (self.chunk_size) times...
                 for _ in 0..self.chunk_size {
                     // Internally loop (self.loop) times...

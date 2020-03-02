@@ -74,25 +74,26 @@ So with the following options:
 
 ```toml
 times = 2
-iterations = [5]
-chunksize = [1000]
+iterations = [5,10]
+chunksize = 1000
 mutations = [ ["Reverse"], ["Swap"] ]
 ```
 
 The program is going to be run **twice**, with each run containing an output for
-- A mutation of `1KB` chunks by applying `Reverse` 5 times, and
-- A mutation of `1KB` chunks by applynig `Swap` 5 times
+- A mutation of `1KB` chunks by applying `Reverse` _5 to 10 times_, and
+- A mutation of `1KB` chunks by applynig `Swap` _5 to 10 times_
 
 ...resulting in **2 * 2** output files in total. *(Times * No. of Mutations)*
 
 #### Ranges
 
-As you've seen above, `iterations` and `chunksize` need to be an `array`. The reasoning behind this is that they can also have *2 values*. In effect, they have two possible kinds of values:
+As you've seen above, `iterations` is an `array` of 2 integers. Almost all mutation-specific options can be set up with ranges, meaning an array of 2 numbers:
 
-- `iterations = [x]`: `x` iterations
+- `iterations = x`: `x` iterations
 - `iterations = [x,y]` : Between `x` and `y` iterations.
 
-A number will be generated randomly between `x` and `y` for each *`time`*. Even if you don't want a range, you just need to specify an array of size 1. This is because of the way the *options* are being loaded by the databender.
+A number will be generated randomly between `x` and `y` for each *`time`*. So if you want to randomly generate a setting between two bounds, use `[x,y]`. Otherwise, if
+you want your setting to be more concrete, simply use a literal number.
 
 #### Mutations
 
@@ -112,11 +113,11 @@ In the options shown above, it means that the first file will first be mutated b
 
 ### Specific options
 
-Some mutations may have their own options that they require. For example, currently there is a `Loop` mutation that requires an option `loops` to be set. Each mutation has its own configuration as `[<Mutation>Config]`, so to configure `Loop`:
+Some mutations may have their own options that they require. For example, currently there is a `Loops` mutation that requires an option `loops` to be set. Each mutation has its own configuration as `[<Mutation>Config]`, so to configure `Loops`:
 
 ```toml
-[LoopConfig]
-loops = [10]
+[LoopsConfig]
+loops = 10
 ```
 
 This will set `loops` to be `10` for the `Loop` mutation. If you forget to specify this option, the program will specify which options it requires, and under which name.
@@ -129,25 +130,26 @@ TODO: Add example of error.
 
 ### Overriding global options
 
-What if, for example, you want `Loop` to have *different* values for `chunksize`? You can override them by simply specifying them under `[LoopConfig]`:
+What if, for example, you want `Loops` to have *different* values for `chunksize`? You can override them by simply specifying them under `[LoopsConfig]`:
 
 ```toml
-[LoopConfig]
-loops = [10]
+[LoopsConfig]
+loops = 10
 chunksize = [10,1000]
 ```
 
-In this case, the `iterations` used will be the global option set, however the `chunksize` used will be taken from `[LoopConfig]`.
+In this case, the `iterations` used will be the global option set, however the `chunksize` used will be taken from `[LoopsConfig]`.
 
 ## Feedback!
 
-This project is currently a prototype. As a result, any sort of feedback is *heavily* appreciated! If you'd like to contact me, you can use [my email](mctech26@gmail.com), or if you're on the *Fediverse* you can hit me up [there!](https://cybre.space/@calm).
+This project is currently a prototype. As a result, any sort of feedback is *heavily* appreciated! If you'd like to contact me, you can use [my email](mctech26@gmail.com), or if you're on the *Fediverse* you can hit me up [there!](https://hellsite.site/@andre).
 
 You can also open an issue, and I'll try to respond as fast as possible! Don't worry - any kind of feedback is accepted, be they feature requests, opinions, or criticism.
 
 ## TODO
-- Finalize mutations
-- Update structure/formatting of code
-- Improve UX by possibly adding a CLI app.
-- Improve UX by possibly adding a GUI.
+- [ ] Update structure/formatting of code
+  - [x] Improve structure to use `CfgMap` instead.
+  - [ ] Find a way to improve structure of Mutations, specifically randomly generating settings in ranges.
+- [ ] Improve UX by possibly adding a CLI app.
+- [ ] Improve UX by possibly adding a GUI.
 
