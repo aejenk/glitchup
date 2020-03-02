@@ -80,7 +80,7 @@ This release is made possible by the following people (in alphabetical order).
 Thank you all for your contributions. Your work – no matter how significant – is
 greatly appreciated by the community. 💖
 
-- Andre Jenkins (<mctech26@gmail.com>)
+- Andrea Jenkins (<mctech26@gmail.com>)
 
 ### Changes
 
