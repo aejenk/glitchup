@@ -14,6 +14,8 @@ All notable changes to this project are documented in this file.
 
 ## [0.4.2]
 
+_2020.02.03_
+
 ### Changes
 
 - **Made the `Loop` and `Swap` mutations safer to use**, meaning that they won't panic if given incompatible settings, only display a warning.
