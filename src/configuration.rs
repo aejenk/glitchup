@@ -14,9 +14,9 @@ pub struct Configuration {
 
 impl Configuration {
 
-    pub fn from_file(config_filename: &str) -> Result<Self, String> {
+    pub fn from_file(config_filename: &str) -> Self {
         let file = fs::read_to_string(config_filename).expect("Failed to read file into string.");
-        Ok(Configuration { cfg: toml::from_str::<toml::Value>(&file).expect("Couldn't parse as toml.").into() })
+        Configuration { cfg: toml::from_str::<toml::Value>(&file).expect("Couldn't parse as toml.").into() }
     }
 
     /// REDO DOC

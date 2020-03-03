@@ -13,13 +13,7 @@ use rayon::prelude::*;
 
 fn main() {
     // Initialises the configuration for the application.
-    let conf = match Configuration::from_file("Options.toml") {
-        Err(msg) => {
-            eprintln!("{}", msg);
-            return;
-        },
-        Ok(conf) => conf,
-    };
+    let conf = Configuration::from_file("Options.toml");
 
     conf.verify_config();
 
