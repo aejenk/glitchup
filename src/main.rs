@@ -21,6 +21,8 @@ fn main() {
         Ok(conf) => conf,
     };
 
+    conf.verify_config();
+
     // Retrieves some options from the configuration.
     let loops = conf.get("times")
         .and_then(|times| times.as_int())

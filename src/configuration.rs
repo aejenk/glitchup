@@ -20,7 +20,7 @@ impl Configuration {
     }
 
     /// REDO DOC
-    pub fn verify_config(&mut self) {
+    pub fn verify_config(&self) {
         let muts_passed : Vec<&String> = self.get_mutations().into_par_iter().flatten().collect();
 
         static POSSIBLE_MUTS : [&str; 11]= ["Void", "Chaos", "Loops", "Reverse", "Shift", "Shuffle", "Swap",
