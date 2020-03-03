@@ -2,14 +2,12 @@
 //! a databender hasn't started yet.
 
 mod benders;
-use benders::KaBender;
-
-mod configuration;
-use configuration::Configuration;
-
 mod mutations;
 mod loaders;
-mod mutation;
+mod configuration;
+
+use benders::KaBender;
+use configuration::Configuration;
 
 use rayon::prelude::*;
 
@@ -26,7 +24,7 @@ fn main() {
     // Retrieves some options from the configuration.
     let loops = conf.get("times")
         .and_then(|times| times.as_int())
-        .unwrap_or(&300);
+        .unwrap_or(&1);
 
     (0..*loops).into_par_iter().for_each(|i| {
         let bender = KaBender::new(&conf, i.to_string());
