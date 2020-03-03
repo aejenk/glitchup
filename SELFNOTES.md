@@ -31,3 +31,8 @@ The following serves as a reminder for how to conventionally commit:
 - **test:** adding missing tests
 - **chore:** changes to build process / auxiliary tools / libraries such as
   documentation generation
+
+
+## Bugs:
+
+- Something about `Loops` causes a Permission Error when renaming the temporary file.

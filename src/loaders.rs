@@ -1,4 +1,4 @@
-use std::fs::{OpenOptions, copy, rename};
+use std::fs::{OpenOptions, copy, rename, remove_file};
 use memmap::MmapMut;
 use std::path::PathBuf;
 use std::io::{Error, ErrorKind};
@@ -38,6 +38,16 @@ impl Loader {
         }
         else {
             rename(from, to)?;
+            Ok(())
+        }
+    }
+
+    pub fn remove_file(file: &str) -> std::io::Result<()> {
+        if !Loader::file_exists(file) {
+            Err(Error::new(ErrorKind::NotFound, format!("File '{}' does not exist.", file)))
+        }
+        else {
+            remove_file(file)?;
             Ok(())
         }
     }
