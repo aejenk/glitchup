@@ -11,7 +11,7 @@ use std::collections::HashMap;
 use rayon::prelude::*;
 
 // type Mut = fn(&mut [u8], &Configuration) -> Result<String, MutationError>;
-type Mut = Box<fn(&mut [u8], &Configuration) -> Result<String, MutationError>>;
+type Mut = fn(&mut [u8], &Configuration) -> Result<String, MutationError>;
 type Muts = Vec<Mut>;
 
 /// A main controller of the databender.
@@ -159,17 +159,17 @@ impl<'a> KaBender<'a> {
 
         let mutmap: Vec<(String, Mut)> = 
         vec![
-            ("Void".into()     , Box::new(void)),
-            ("Chaos".into()    , Box::new(chaos)),
-            ("Loops".into()    , Box::new(loops)),
-            ("Reverse".into()  , Box::new(reverse)),
-            ("Shift".into()    , Box::new(shift)),
-            ("Shuffle".into()  , Box::new(shuffle)),
-            ("Swap".into()     , Box::new(swap)),
-            ("Increase".into() , Box::new(increase)),
-            ("Gradient".into() , Box::new(gradient)),
-            ("Multiply".into() , Box::new(multiply)),
-            ("Compress".into() , Box::new(compress)),
+            ("Void".into()     , void),
+            ("Chaos".into()    , chaos),
+            ("Loops".into()    , loops),
+            ("Reverse".into()  , reverse),
+            ("Shift".into()    , shift),
+            ("Shuffle".into()  , shuffle),
+            ("Swap".into()     , swap),
+            ("Increase".into() , increase),
+            ("Gradient".into() , gradient),
+            ("Multiply".into() , multiply),
+            ("Compress".into() , compress),
         ];
 
         for (k,v) in mutmap.into_iter() {
