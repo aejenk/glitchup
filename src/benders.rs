@@ -9,10 +9,38 @@ use super::configuration::Configuration;
 use std::collections::HashMap;
 
 use rayon::prelude::*;
+use lazy_static::lazy_static;
 
-// type Mut = fn(&mut [u8], &Configuration) -> Result<String, MutationError>;
 type Mut = fn(&mut [u8], &Configuration) -> Result<String, MutationError>;
 type Muts = Vec<Mut>;
+
+// Initialise all mutations in here.
+lazy_static! {
+    pub static ref MUTMAP: HashMap<String, Mut> = {
+        let mut map = HashMap::new();
+        let mutmap: Vec<(String, Mut)> = 
+        vec![
+            ("Void".into()     , void),
+            ("Chaos".into()    , chaos),
+            ("Loops".into()    , loops),
+            ("Reverse".into()  , reverse),
+            ("Shift".into()    , shift),
+            ("Shuffle".into()  , shuffle),
+            ("Swap".into()     , swap),
+            ("Increase".into() , increase),
+            ("Gradient".into() , gradient),
+            ("Multiply".into() , multiply),
+            ("Compress".into() , compress),
+            // Add more mutations here.
+        ];
+
+        for (k,v) in mutmap.into_iter() {
+            map.insert(k, v);
+        }
+
+        map
+    };
+}
 
 /// A main controller of the databender.
 /// 
@@ -22,7 +50,6 @@ pub struct KaBender<'a> {
     outdir: String,
     extension: String,
     output: String,
-    mutmap: HashMap<String, Mut>,
     pub config: &'a Configuration,
 }
 
@@ -36,10 +63,8 @@ impl<'a> KaBender<'a> {
             extension : String::new(),
             output : String::new(),
             outdir : String::new(),
-            mutmap: HashMap::new(),
         };
 
-        new.setup_mutations();
         new.setup_file_data();
         new
     }
@@ -57,7 +82,7 @@ impl<'a> KaBender<'a> {
         // Retrieves all mutations from hashmap using the file.
         let mutations : Vec<Muts> = mutations.par_iter().map(|combo| {
             combo.iter().map(|mut_str| {
-                self.mutmap.get(*mut_str).cloned().unwrap()
+                MUTMAP.get(*mut_str).cloned().unwrap()
             }).collect()
         }).collect();
 
@@ -150,31 +175,6 @@ impl<'a> KaBender<'a> {
             self.outdir,
             path.file_stem().and_then(OsStr::to_str).unwrap().clone(),
         );
-    }
-
-
-    /// Setup the internal mutations for the Bender.
-    /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
-    fn setup_mutations(&mut self) {       
-
-        let mutmap: Vec<(String, Mut)> = 
-        vec![
-            ("Void".into()     , void),
-            ("Chaos".into()    , chaos),
-            ("Loops".into()    , loops),
-            ("Reverse".into()  , reverse),
-            ("Shift".into()    , shift),
-            ("Shuffle".into()  , shuffle),
-            ("Swap".into()     , swap),
-            ("Increase".into() , increase),
-            ("Gradient".into() , gradient),
-            ("Multiply".into() , multiply),
-            ("Compress".into() , compress),
-        ];
-
-        for (k,v) in mutmap.into_iter() {
-            self.mutmap.insert(k, v);
-        }
     }
 
     /// Renames the temporary file that was mutated to its supposed output file.

@@ -17,6 +17,9 @@ fn main() {
 
     conf.verify_config();
 
+    // Initialises the mutation map at the start.
+    lazy_static::initialize(&benders::MUTMAP);
+
     // Retrieves some options from the configuration.
     let loops = conf.get("times")
         .and_then(|times| times.as_int())

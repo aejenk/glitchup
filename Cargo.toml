@@ -24,3 +24,4 @@ rayon = "1.2.0"
 rand_core = "0.5"
 moveslice = "2.0.1"
 cfgmap = {version = "0.2.3", features = ["from_toml", "generator"]}
+lazy_static = "1.4.0"
