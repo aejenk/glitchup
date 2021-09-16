@@ -1,18 +1,18 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "input/OMINOUS.tif"
+inputfile = "input/gaster.tif"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "output/OMINOUS.tif"
+outputfile = "output/gaster.tif"
 
 # How many times to execute the application
-times = 40
+times = 300
 
 # How many times to perform the mutations in a row
-iterations = [1,5]
+iterations = [1,10]
 
 # Size of each chunk to mutate at a time
-chunksize = [700000,7000000]
+chunksize = [2730,2730000]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
@@ -20,24 +20,24 @@ chunksize = [700000,7000000]
 # Increase, Gradient, Multiply
 # Compress
 mutations = [
-	#["Compress"],
-	#["Multiply"],
+	["Compress"],
+	#["Multiply", "Shift"],
 	#["Reverse"],
 	#["Shift"],
 	#["Void"],
 	#["Chaos"],
-	["Swap"],
-	["Loops"],
+	#["Swap"],
+	#["Loops"],
 	#["Shuffle"],
 	#["Increase"],
-	["Gradient"]
+	#["Gradient"]
 ]
 
 # Additional options for special mutations.
 # If more options are required, the application should inform you of what to do.
-[LoopConfig]
+[LoopsConfig]
 loops = [20]
-chunksize = [7_00_000]
+chunksize = [700_000]
 
 [IncreaseConfig]
 increase_by = [1,5]
@@ -47,13 +47,13 @@ accelerate_by = [1,2]
 accelerate_in = [10_000, 100_000]
 
 [MultiplyConfig]
-multiply_by = [0.5]
+multiply_by = [0.9]
 
 # You can override options for mutations.
 # Just use <MutationName>Config.
 [ShiftConfig]
 iterations = [1,1000]
-chunksize = [1,10]
+chunksize = [1]
 
 [CompressConfig]
 compress_by = [2]
