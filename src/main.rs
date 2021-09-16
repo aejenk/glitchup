@@ -2,31 +2,28 @@
 //! a databender hasn't started yet.
 
 mod benders;
-use benders::KaBender;
-
-mod configuration;
-use configuration::Configuration;
-
 mod mutations;
 mod loaders;
-mod mutation;
+mod configuration;
+
+use benders::KaBender;
+use configuration::Configuration;
 
 use rayon::prelude::*;
 
 fn main() {
     // Initialises the configuration for the application.
-    let conf = match Configuration::from_file("Options.toml") {
-        Err(msg) => {
-            eprintln!("{}", msg);
-            return;
-        },
-        Ok(conf) => conf,
-    };
+    let conf = Configuration::from_file("Options.toml");
+
+    conf.verify_config();
+
+    // Initialises the mutation map at the start.
+    lazy_static::initialize(&benders::MUTMAP);
 
     // Retrieves some options from the configuration.
     let loops = conf.get("times")
         .and_then(|times| times.as_int())
-        .unwrap_or(&300);
+        .unwrap_or(&1);
 
     (0..*loops).into_par_iter().for_each(|i| {
         let bender = KaBender::new(&conf, i.to_string());

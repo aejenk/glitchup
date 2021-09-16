@@ -1,5 +1,5 @@
 use std::fs;
-use cfgmap::{CfgMap, Checkable, Condition::*};
+use cfgmap::{CfgMap};
 use std::ops::Deref;
 use rayon::prelude::*;
 
@@ -14,13 +14,13 @@ pub struct Configuration {
 
 impl Configuration {
 
-    pub fn from_file(config_filename: &str) -> Result<Self, String> {
+    pub fn from_file(config_filename: &str) -> Self {
         let file = fs::read_to_string(config_filename).expect("Failed to read file into string.");
-        Ok(Configuration { cfg: toml::from_str::<toml::Value>(&file).expect("Couldn't parse as toml.").into() })
+        Configuration { cfg: toml::from_str::<toml::Value>(&file).expect("Couldn't parse as toml.").into() }
     }
 
     /// REDO DOC
-    pub fn verify_config(&mut self) {
+    pub fn verify_config(&self) {
         let muts_passed : Vec<&String> = self.get_mutations().into_par_iter().flatten().collect();
 
         static POSSIBLE_MUTS : [&str; 11]= ["Void", "Chaos", "Loops", "Reverse", "Shift", "Shuffle", "Swap",
@@ -43,52 +43,12 @@ impl Configuration {
             .collect()
     } 
 
-    pub fn get_option_as_range_int(&self, category: &str, value: &str) -> Option<(i64, i64)> {
-        let valid = self.get_option(category, value)
-            .check_that(IsListWith(Box::new(IsInt)) & IsListWithLength(2));
-
-        if valid {
-            let start = format!("{}/0", value);
-            let end = format!("{}/1", value);
-
-            Some((
-                *self.get_option(category, &start).unwrap().as_int().unwrap(),
-                *self.get_option(category, &end).unwrap().as_int().unwrap(),
-            ))
-        }
-        else {
-            None
-        }
+    pub fn generate_int_from_option(&self, category: &str, value: &str) -> Option<i64> {
+        self.get_option(category, value).and_then(|value| value.generate_int())
     }
 
-    pub fn get_option_as_single_int(&self, category: &str, value: &str) -> Option<i64> {
-        self.get_option(category, value)
-            .and_then(|v| v.as_int())
-            .map(|i| *i)
-    }
-
-    pub fn get_option_as_range_float(&self, category: &str, value: &str) -> Option<(f64, f64)> {
-        let valid = self.get_option(category, value)
-            .check_that(IsListWith(Box::new(IsFloat)) & IsListWithLength(2));
-
-        if valid {
-            let start = format!("{}/0", value);
-            let end = format!("{}/1", value);
-
-            Some((
-                *self.get_option(category, &start).unwrap().as_float().unwrap(),
-                *self.get_option(category, &end).unwrap().as_float().unwrap(),
-            ))
-        }
-        else {
-            None
-        }
-    }
-
-    pub fn get_option_as_single_float(&self, category: &str, value: &str) -> Option<f64> {
-        self.get_option(category, value)
-            .and_then(|v| v.as_float())
-            .map(|i| *i)
+    pub fn generate_float_from_option(&self, category: &str, value: &str) -> Option<f64> {
+        self.get_option(category, value).and_then(|value| value.generate_float())
     }
 
     pub fn get_inputfile(&self) -> &str {

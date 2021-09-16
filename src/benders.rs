@@ -1,22 +1,46 @@
-use super::{loaders::Loader, mutation::Mutation};
+use super::{loaders::Loader};
 
 use memmap::MmapMut;
 
-use super::mutations::{
-    void::Void, chaos::Chaos, loops::Loops, reverse::Reverse,
-    shift::Shift, shuffle::Shuffle, swap::Swap,
-    increase::Increase, gradient::Gradient, multiply::Multiply,
-    compress::Compress,
-};
+use super::mutations::*;
 
 use super::configuration::Configuration;
 
 use std::collections::HashMap;
 
 use rayon::prelude::*;
+use lazy_static::lazy_static;
 
-type Mut = Box<dyn Mutation + Send + Sync>;
+type Mut = fn(&mut [u8], &Configuration) -> Result<String, MutationError>;
 type Muts = Vec<Mut>;
+
+// Initialise all mutations in here.
+lazy_static! {
+    pub static ref MUTMAP: HashMap<String, Mut> = {
+        let mut map = HashMap::new();
+        let mutmap: Vec<(String, Mut)> = 
+        vec![
+            ("Void".into()     , void),
+            ("Chaos".into()    , chaos),
+            ("Loops".into()    , loops),
+            ("Reverse".into()  , reverse),
+            ("Shift".into()    , shift),
+            ("Shuffle".into()  , shuffle),
+            ("Swap".into()     , swap),
+            ("Increase".into() , increase),
+            ("Gradient".into() , gradient),
+            ("Multiply".into() , multiply),
+            ("Compress".into() , compress),
+            // Add more mutations here.
+        ];
+
+        for (k,v) in mutmap.into_iter() {
+            map.insert(k, v);
+        }
+
+        map
+    };
+}
 
 /// A main controller of the databender.
 /// 
@@ -26,7 +50,6 @@ pub struct KaBender<'a> {
     outdir: String,
     extension: String,
     output: String,
-    mutmap: HashMap<String, Mut>,
     pub config: &'a Configuration,
 }
 
@@ -40,10 +63,8 @@ impl<'a> KaBender<'a> {
             extension : String::new(),
             output : String::new(),
             outdir : String::new(),
-            mutmap: HashMap::new(),
         };
 
-        new.setup_mutations();
         new.setup_file_data();
         new
     }
@@ -61,7 +82,7 @@ impl<'a> KaBender<'a> {
         // Retrieves all mutations from hashmap using the file.
         let mutations : Vec<Muts> = mutations.par_iter().map(|combo| {
             combo.iter().map(|mut_str| {
-                self.mutmap.get(*mut_str).cloned().unwrap()
+                MUTMAP.get(*mut_str).cloned().unwrap()
             }).collect()
         }).collect();
 
@@ -79,12 +100,19 @@ impl<'a> KaBender<'a> {
             .for_each(|(index, (mutation_combo, map))| {
                 let mut log = Vec::new();
 
-                for mutation in mutation_combo {
-                    mutation.mutate(map);
-                    log.push(mutation.to_string());
-                }
+                let results: Result<Vec<_>, _> = mutation_combo.into_iter().map(|mutation| {
+                    match mutation(map, self.config) {
+                        Ok(mutation) => Ok(log.push(mutation)),
+                        Err(error) => {
+                            eprintln!("{}", error.error);
+                            Loader::remove_file(&format!("{}temp{}SEED={}.{}", self.outdir, index, self.seed, self.extension))
+                        },
+                    }
+                }).collect();
 
-                self.flush(index, log);
+                if results.is_ok() {
+                    self.flush(index, log);
+                }
             });
     }
 
@@ -149,37 +177,6 @@ impl<'a> KaBender<'a> {
         );
     }
 
-
-    /// Setup the internal mutations for the Bender.
-    /// In order to add your own mutation, you would need to include it here, otherwise it wouldn't be used.
-    fn setup_mutations(&mut self) {
-        fn generate_map(muts: Vec<(&'static str, Mut)>) -> HashMap<String, Mut> {
-            muts.into_par_iter().map(|tuple| (String::from(tuple.0), tuple.1)).collect()
-        }
-
-        let mutmap = generate_map(vec![
-            ("Void"     , Box::new(Void::default())),
-            ("Chaos"    , Box::new(Chaos::default())),
-            ("Loops"    , Box::new(Loops::default())),
-            ("Reverse"  , Box::new(Reverse::default())),
-            ("Shift"    , Box::new(Shift::default())),
-            ("Shuffle"  , Box::new(Shuffle::default())),
-            ("Swap"     , Box::new(Swap::default())),
-            ("Increase" , Box::new(Increase::default())),
-            ("Gradient" , Box::new(Gradient::default())),
-            ("Multiply" , Box::new(Multiply::default())),
-            ("Compress" , Box::new(Compress::default())),
-        ]);
-
-        self.mutmap = mutmap
-            .into_par_iter()
-            .map(|mut mutation| {
-                mutation.1.configure(self.config);
-                mutation
-            })
-            .collect();
-    }
-
     /// Renames the temporary file that was mutated to its supposed output file.
     /// 
     /// * `iter` - The iteration. Used to rename the right mutated file.
@@ -198,12 +195,14 @@ impl<'a> KaBender<'a> {
             ext = self.extension.clone(),
         );
 
-        println!("Renaming temporary file to {}", genoutput);
+        let temporaryname = format!("{}temp{}SEED={}.{}", self.outdir, iter, self.seed, self.extension);
 
         // Renames temporary file to actual output name
-        Loader::rename_file(
-            format!("{}temp{}SEED={}.{}", self.outdir, iter, self.seed, self.extension).as_str(),
-            genoutput.as_str()
-        ).unwrap();
+        let result = Loader::rename_file(&temporaryname, &genoutput);
+
+        if let Err(err) = result {
+            println!("\n{:-^80}\nSomething went wrong while renaming the file from \n{} to {}\n{}\n{:-^80}", "ERROR",
+             temporaryname, genoutput, err.to_string(), "")
+        }
     }
 }

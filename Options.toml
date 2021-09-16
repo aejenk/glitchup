@@ -1,18 +1,18 @@
 # Specifies the file to mutate. Will be used, not modified.
-inputfile = "input/niko.tif"
+inputfile = "input/gaster.tif"
 
 # Can be omitted
 # Specifies the output file
-outputfile = "output/kino.tif"
+outputfile = "output/gaster.tif"
 
 # How many times to execute the application
-times = 10
+times = 300
 
 # How many times to perform the mutations in a row
-iterations = [1,5]
+iterations = [1,10]
 
 # Size of each chunk to mutate at a time
-chunksize = [19300,193000]
+chunksize = [2730,2730000]
 
 # Available mutations:
 # Void, Chaos, Loops, Reverse,
@@ -21,40 +21,39 @@ chunksize = [19300,193000]
 # Compress
 mutations = [
 	["Compress"],
-	["Multiply"],
-	["Reverse"],
-	["Shift"],
-	["Shift", "Multiply", "Reverse"],
-	["Void"],
-	["Chaos"],
-	["Swap"],
-	["Loops"],
-	["Shuffle"],
-	["Increase"],
-	["Gradient"]
+	#["Multiply", "Shift"],
+	#["Reverse"],
+	#["Shift"],
+	#["Void"],
+	#["Chaos"],
+	#["Swap"],
+	#["Loops"],
+	#["Shuffle"],
+	#["Increase"],
+	#["Gradient"]
 ]
 
 # Additional options for special mutations.
 # If more options are required, the application should inform you of what to do.
 [LoopsConfig]
-loops = 20
-chunksize = 1_00_000
+loops = [20]
+chunksize = [700_000]
 
 [IncreaseConfig]
-increaseby = [1,255]
+increase_by = [1,5]
 
 [GradientConfig]
-accelerateby = [1,2]
-acceleratein = [10_000, 100_000]
+accelerate_by = [1,2]
+accelerate_in = [10_000, 100_000]
 
 [MultiplyConfig]
-multiplyby = 0.5
+multiply_by = [0.9]
 
 # You can override options for mutations.
 # Just use <MutationName>Config.
 [ShiftConfig]
-iterations = [100,1000]
-chunksize = [1,10]
+iterations = [1,1000]
+chunksize = [1]
 
 [CompressConfig]
-compressby = 2
+compress_by = [2]
